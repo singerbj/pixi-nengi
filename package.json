@@ -4,7 +4,7 @@
     "description": "minmal examples of using nengi features with the nengi 2.0 api",
     "scripts": {
         "start": "concurrently \"npm run client\" \"npm run server\"",
-        "profiler": "npm run client && npm run server-profiler",
+        "profiler": "concurrently \"npm run client\" \"npm run server-profiler\"",
         "client": "npx webpack serve",
         "server": "npx ts-node-dev --respawn ./src/server/server-main.ts",
         "bot": "npx ts-node-dev ./src/bot/bot-main.ts",
