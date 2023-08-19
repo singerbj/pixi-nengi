@@ -11,7 +11,7 @@ export function predictMovement(state: State, moveCommand: MoveCommand, client: 
     if (entity && state.isPredictionEnabled) {
         move(entity, moveCommand)
 
-        const { nid, x, y } = entity
-        client.predictor.addCustom(client.network.clientTick, { nid, x, y }, ['x', 'y'], entitySchema)
+        const { x, y } = entity
+        client.predictor.addCustom(client.network.clientTick, { nid: state.myId, x, y }, ['x', 'y'], entitySchema)
     }
 }
