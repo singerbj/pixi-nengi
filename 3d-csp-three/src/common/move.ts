@@ -4,7 +4,7 @@ export function move(entity: { x: number, y: number }, moveCommand: MoveCommand)
     // the correct version of this is a NORMALIZED VECTOR * delta
     // this math is incorrect
 
-    const speed = 200
+    const speed = 2
 
     const { up, down, left, right, delta } = moveCommand
 
@@ -20,4 +20,6 @@ export function move(entity: { x: number, y: number }, moveCommand: MoveCommand)
     if (right) {
         entity.x += speed * delta
     }
+
+    //console.log(`Moving! ${entity.x}, ${ entity.y}`)
 }

@@ -4,10 +4,10 @@ import { WebSocketClientAdapter } from 'nengi-websocket-client-adapter'
 import { handlePredictionErrors } from './handlePredictionErrors'
 import { handleMessages } from './handleMessages'
 import { handleEntities } from './handleEntities'
-import { PIXIRenderer } from './PIXIRenderer'
 import { State } from './State'
 import { InputSystem } from './InputSystem'
 import { predictMovement } from './predictMovement'
+import { THREERenderer } from './THREERenderer'
 
 /**
  * A basic nengi client example.
@@ -18,7 +18,7 @@ window.addEventListener('load', async () => {
     // game state for this client
     const state = new State()
     // a primitive pixi renderer
-    const renderer = new PIXIRenderer()
+    const renderer = new THREERenderer()
 
     const client = new Client(ncontext, WebSocketClientAdapter, 20)
     const interpolator = new Interpolator(client)
@@ -51,7 +51,7 @@ window.addEventListener('load', async () => {
             client.flush()
 
             inputSystem.resetKeys()
-            renderer.cameraFollow(state)
+            //renderer.cameraFollow(state)
             renderer.render()
         }
 

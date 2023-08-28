@@ -1,26 +1,17 @@
-import { Container, Graphics, Text } from 'pixi.js'
+import { BoxGeometry, Mesh, MeshLambertMaterial } from 'three'
 
-export class GraphicalEntity extends Container {
-    graphics: Graphics
-    nidText: Text
+export class GraphicalEntity {
+    nid = 0
+    ntype = 0
+    geometry = new BoxGeometry(1, 1, 1)
+    material = new MeshLambertMaterial({ color: 0xffffff })//new MeshBasicMaterial({ color: 0x00ff00 })
+    mesh = new Mesh(this.geometry, this.material)
 
-    constructor() {
-        super()
-
-        this.graphics = new Graphics()
-        this.graphics.beginFill(0xff00ff)
-        this.graphics.drawCircle(0, 0, 50)
-        this.graphics.endFill()
-
-        this.addChild(this.graphics)
-
-        this.nidText = new Text('n/a')
-        this.addChild(this.nidText)
-    }
-
-    // note we do not have to define get/set for x,y because these already exist on Container
-
-    set nid (value: number) {
-        this.nidText.text = `${ value }`
-    }
+    // we use get/set so that we can have a flat nengi network object with x,y,z, meanwhile this graphical object has mesh.position.x,y,z
+    get x() { return this.mesh.position.x }
+    set x(value: number) { this.mesh.position.x = value }
+    get y() { return this.mesh.position.y }
+    set y(value: number) { this.mesh.position.y = value }
+    get z() { return this.mesh.position.z }
+    set z(value: number) { this.mesh.position.z = value }
 }

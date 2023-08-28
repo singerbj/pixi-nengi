@@ -19,6 +19,7 @@
     "license": "proprietary",
     "devDependencies": {
         "@types/jest": "^29.5.2",
+        "@types/three": "^0.155.1",
         "@typescript-eslint/eslint-plugin": "^5.59.8",
         "@typescript-eslint/parser": "^5.59.8",
         "concurrently": "^8.2.0",
@@ -32,9 +33,9 @@
         "webpack-dev-server": "^4.15.0"
     },
     "dependencies": {
-        "nengi": "^2.0.0-alpha.133",
         "nengi-uws-instance-adapter": "^0.4.0",
         "nengi-websocket-client-adapter": "^0.7.0",
-        "pixi.js": "^7.2.4"
+        "pixi.js": "^7.2.4",
+        "three": "^0.155.0"
     }
 }

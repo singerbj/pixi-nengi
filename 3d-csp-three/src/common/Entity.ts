@@ -5,7 +5,8 @@ export const entitySchema = defineSchema({
     // nid: Binary.UInt32 is already included by nengi
     // ntype: Binary.UInt8 is already included by nengi
     x: { type: Binary.Float64, interp: true },
-    y: { type: Binary.Float64, interp: true }
+    y: { type: Binary.Float64, interp: true },
+    z: { type: Binary.Float64, interp: true },
 })
 
 /**
@@ -16,4 +17,5 @@ export class Entity {
     ntype = NType.Entity
     x = 0
     y = 0
+    z = 0
 }

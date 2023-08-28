@@ -1,25 +1,23 @@
 import { Interpolator } from 'nengi'
 import { State } from './State'
-import { GraphicalEntity } from './GraphicalEntity'
-import { PIXIRenderer } from './PIXIRenderer'
+import { THREERenderer } from './THREERenderer'
+
 
 /**
- * Creates and synchronizes entities being from the nengi instance with the pixi renderer
+ * Creates and synchronizes entities being from the nengi instance with the renderer
  * @param interpolator
  * @param state
  * @param renderer
  */
-export function handleEntities(interpolator: Interpolator, state: State, renderer: PIXIRenderer) {
+export function handleEntities(interpolator: Interpolator, state: State, renderer: THREERenderer) {
     const istate = interpolator.getInterpolatedState(100)
 
     // changes in entities (create, update, delete)
     istate.forEach(snapshot => {
         snapshot.createEntities.forEach((entity: any) => {
             console.log('create', entity)
-            const graphicalEntity = new GraphicalEntity()
-            Object.assign(graphicalEntity, entity) // shorthand, look this up if confused
-            renderer.addEntity(graphicalEntity)
-            state.entities.set(entity.nid, graphicalEntity)
+            const gfxEntity = renderer.addEntity(entity)
+            state.entities.set(gfxEntity.nid, gfxEntity)
         })
 
         snapshot.updateEntities.forEach((diff: any) => {
@@ -40,8 +38,8 @@ export function handleEntities(interpolator: Interpolator, state: State, rendere
             if (state.entities.has(nid)) {
                 const graphicalEntity = state.entities.get(nid)!
                 renderer.removeEntity(graphicalEntity)
+                state.entities.delete(nid)
             }
-            state.entities.delete(nid)
         })
     })
 }

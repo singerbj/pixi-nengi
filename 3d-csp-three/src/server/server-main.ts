@@ -33,9 +33,15 @@ instance.registerChannel(main)
 const queue = instance.queue
 type MyUser = User & { entity: any, view: AABB2D } // view is currently not used
 
-const npc = new Entity()
-main.addEntity(npc)
-let walkingRight = true
+for (let i = 0; i < 10; i++) {
+    const npc = new Entity()
+    npc.x = Math.random() * 3
+    npc.y = Math.random() * 3
+    npc.z = Math.random() * 3
+    main.addEntity(npc)
+    //let walkingRight = true
+}
+
 
 
 const update = () => {
@@ -75,20 +81,21 @@ const update = () => {
 
     // game logic goes here
     // in this case we just  have an npc that moves back and forth...
+    /*
     if (walkingRight) {
-        npc.x += 33
+        npc.x += 0.3
     } else {
-        npc.x -= 66
+        npc.x -= 0.6
     }
 
-    if (npc.x > 1000) {
+    if (npc.x > 10) {
         walkingRight = false
     }
 
     if (npc.x < 0) {
         walkingRight = true
     }
-
+    */
 
     instance.step()
 }
