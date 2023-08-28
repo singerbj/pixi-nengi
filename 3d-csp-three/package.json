@@ -33,6 +33,7 @@
         "webpack-dev-server": "^4.15.0"
     },
     "dependencies": {
+        "nengi": "^2.0.0-alpha.138",
         "nengi-uws-instance-adapter": "^0.4.0",
         "nengi-websocket-client-adapter": "^0.7.0",
         "pixi.js": "^7.2.4",

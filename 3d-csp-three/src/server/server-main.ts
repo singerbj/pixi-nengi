@@ -1,4 +1,4 @@
-import { Instance, NetworkEvent, AABB2D, Channel, User } from 'nengi'
+import { Instance, NetworkEvent, User, ChannelAABB3D, AABB3D } from 'nengi'
 import { NType, ncontext } from '../common/ncontext'
 import { uWebSocketsInstanceAdapter } from 'nengi-uws-instance-adapter'
 import { Entity } from '../common/Entity'
@@ -27,11 +27,11 @@ const uws = new uWebSocketsInstanceAdapter(instance.network, { /* uws config */ 
 uws.listen(port, () => { console.log(`uws adapter is listening on ${port}`) })
 instance.onConnect = authenticateUser
 
-const main = new Channel(instance.localState)
+const main = new ChannelAABB3D(instance.localState) //new Channel(instance.localState)
 instance.registerChannel(main)
 
 const queue = instance.queue
-type MyUser = User & { entity: any, view: AABB2D } // view is currently not used
+type MyUser = User & { entity: any, view: AABB3D } // example of mixing a nengi user with extra state while satisfying typescript
 
 for (let i = 0; i < 10; i++) {
     const npc = new Entity()
@@ -58,7 +58,9 @@ const update = () => {
         // connections
         if (networkEvent.type === NetworkEvent.UserConnected) {
             const user = networkEvent.user as MyUser
-            main.subscribe(user)
+            const view = new AABB3D(0, 0, 0, 2, 2, 2)
+            user.view = view
+            main.subscribe(user, view)
             const playerEntity = new Entity()
             user.entity = playerEntity
             main.addEntity(playerEntity)
@@ -74,6 +76,10 @@ const update = () => {
             commands.forEach((command: any) => {
                 if (command.ntype === NType.MoveCommand) {
                     move(entity, command)
+
+                    view.x = entity.x
+                    view.y = entity.y
+                    view.z = entity.z
                 }
             })
         }
