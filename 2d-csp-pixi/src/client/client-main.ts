@@ -41,7 +41,7 @@ window.addEventListener('load', async () => {
             const delta = (now - prev) / 1000
             prev = now
 
-            handlePredictionErrors(client)
+            handlePredictionErrors(client, state)
             handleMessages(client, state)
             handleEntities(interpolator, state, renderer)
 
