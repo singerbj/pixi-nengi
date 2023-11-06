@@ -1,13 +1,14 @@
 {
     "name": "nengi-api-example",
-    "version": "2.0.0-alpha.133",
+    "version": "2.0.0-alpha.160",
     "description": "minmal examples of using nengi features with the nengi 2.0 api",
     "scripts": {
         "start": "concurrently \"npm run client\" \"npm run server\"",
         "profiler": "concurrently \"npm run client\" \"npm run server-profiler\"",
         "client": "npx webpack serve",
         "server": "npx ts-node-dev --respawn ./src/server/server-main.ts",
-        "bot": "npx ts-node-dev ./src/bot/bot-main.ts",
+        "bots": "npx ts-node-dev ./src/bot/bot-main.ts",
+        "bots-profiler": "npx ts-node-dev --inspect -- ./src/bot/bot-main.ts",
         "server-profiler": "npx ts-node-dev --inspect -- ./src/server/server-main.ts",
         "test": "npx ts-jest",
         "build": "npx tsc",
@@ -32,7 +33,7 @@
         "webpack-dev-server": "^4.15.0"
     },
     "dependencies": {
-        "nengi": "^2.0.0-alpha.133",
+        "nengi": "^2.0.0-alpha.160",
         "nengi-uws-instance-adapter": "^0.4.0",
         "nengi-websocket-client-adapter": "^0.7.0",
         "pixi.js": "^7.2.4"

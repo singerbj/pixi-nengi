@@ -2,6 +2,8 @@ import { Interpolator } from 'nengi'
 import { State } from './State'
 import { GraphicalEntity } from './GraphicalEntity'
 import { PIXIRenderer } from './PIXIRenderer'
+import { NType } from '../common/ncontext';
+import { StatsHTML} from './StatsHTML'
 
 /**
  * Creates and synchronizes entities being from the nengi instance with the pixi renderer
@@ -15,11 +17,23 @@ export function handleEntities(interpolator: Interpolator, state: State, rendere
     // changes in entities (create, update, delete)
     istate.forEach(snapshot => {
         snapshot.createEntities.forEach((entity: any) => {
-            console.log('create', entity)
-            const graphicalEntity = new GraphicalEntity()
-            Object.assign(graphicalEntity, entity) // shorthand, look this up if confused
-            renderer.addEntity(graphicalEntity)
-            state.entities.set(entity.nid, graphicalEntity)
+            //console.log('create', entity)
+            if (entity.ntype === NType.Channel) {
+                console.log('channel entity!', entity)
+            }
+            if (entity.ntype === NType.Entity) {
+                const graphicalEntity = new GraphicalEntity()
+                Object.assign(graphicalEntity, entity) // shorthand, look this up if confused
+                renderer.addEntity(graphicalEntity)
+                state.entities.set(entity.nid, graphicalEntity)
+            }
+
+            if (entity.ntype === NType.StatsEntity) {
+                const stats = new StatsHTML(entity)
+                Object.assign(stats, entity)
+                document.body.appendChild(stats.container)
+                state.entities.set(entity.nid, stats)
+            }
         })
 
         snapshot.updateEntities.forEach((diff: any) => {

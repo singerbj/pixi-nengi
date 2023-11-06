@@ -4,6 +4,7 @@ import { generateBackground } from './generateBackground'
 
 export class PIXIRenderer {
     renderer: Renderer
+    stage: Container
     camera: Container
 
     constructor() {
@@ -18,20 +19,29 @@ export class PIXIRenderer {
             this.renderer.resize(window.innerWidth, window.innerHeight)
         })
 
+        this.stage = new Container()      
+
         this.camera = new Container()
         this.camera.addChild(generateBackground())
+
+        this.stage.addChild(this.camera)
     }
 
     addEntity(entity: DisplayObject) {
         this.camera.addChild(entity)
     }
 
+    addHUD(obj: DisplayObject) {
+        this.stage.addChild(obj)
+    }
+
     removeEntity(entity: DisplayObject) {
         this.camera.removeChild(entity)
+        entity.destroy()
     }
 
     render() {
-        this.renderer.render(this.camera)
+        this.renderer.render(this.stage)
     }
 
     cameraFollow(state: State) {

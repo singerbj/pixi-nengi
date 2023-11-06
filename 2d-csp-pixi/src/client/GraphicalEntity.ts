@@ -18,6 +18,12 @@ export class GraphicalEntity extends Container {
         this.addChild(this.nidText)
     }
 
+    destroy() {
+        this.graphics.destroy()
+        this.nidText.destroy()
+        //this.destroy()
+    }
+
     // note we do not have to define get/set for x,y because these already exist on Container
 
     set nid (value: number) {

@@ -9,11 +9,17 @@ export const entitySchema = defineSchema({
 })
 
 /**
- * Defines a basic entity with a 2D position
+ * Defines a basic entity with a 2D position, we happen to name the class "Entity"
+ * out of laziness, but this is not a nengi class -- it belongs to your game, call it
+ * hero or goblin or whatever! :)
  */
 export class Entity {
     nid = 0 // will be assigned by nengi, 0 is a placeholder
     ntype = NType.Entity
     x = 0
     y = 0
+    walkingRight = true
+    age = 0
+    maxAge = 0
+    speed = 0
 }

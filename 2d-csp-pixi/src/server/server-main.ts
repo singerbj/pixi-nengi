@@ -4,11 +4,15 @@ import { uWebSocketsInstanceAdapter } from 'nengi-uws-instance-adapter'
 import { Entity } from '../common/Entity'
 import { IdentityMessage } from '../common/IdentityMessage'
 import { move } from '../common/move'
+import { StatsEntity } from '../common/StatsEntity'
 
 // mocks hitting an external service to authenticate a user
 const authenticateUser = async (handshake: any) => {
     return new Promise<any>((resolve, reject) => {
         setTimeout(() => { // as if the api took time to respond
+            // in reality the website portion of your game should generate an auth token
+            // which this game instance can use to get your player data (assuming a game that
+            // requires authentication and loads a persistent character)
             if (handshake.token === 12345) {
                 // fake data, which we ignore...
                 resolve({ character: 'neuron', level: 24, hp: 89 })
@@ -28,17 +32,36 @@ uws.listen(port, () => { console.log(`uws adapter is listening on ${port}`) })
 instance.onConnect = authenticateUser
 
 const main = new Channel(instance.localState)
-instance.registerChannel(main)
 
 const queue = instance.queue
 type MyUser = User & { entity: any, view: AABB2D } // view is currently not used
 
-const npc = new Entity()
-main.addEntity(npc)
-let walkingRight = true
+const npcs: Map<number, Entity> = new Map()
 
 
-const update = () => {
+function spawnNewNPC() {
+    const npc = new Entity()
+    npc.x = Math.random() * 500
+    npc.y = Math.random() * 500
+    npc.maxAge = 1 + (Math.random() * 3) // live for 10-20 seconds
+    npc.speed = Math.random() * 1000
+    main.addEntity(npc)
+    npcs.set(npc.nid, npc)
+}
+
+function removeNPC(npc: Entity) {
+    npcs.delete(npc.nid)
+    main.removeEntity(npc)
+}
+
+for (let i = 0; i < 10; i++) {
+    spawnNewNPC()
+}
+
+const stats = new StatsEntity()
+main.addEntity(stats)
+
+const update = (delta: number) => {
     while (!queue.isEmpty()) {
         const networkEvent = queue.next()
 
@@ -75,29 +98,44 @@ const update = () => {
 
     // game logic goes here
     // in this case we just  have an npc that moves back and forth...
-    if (walkingRight) {
-        npc.x += 33
-    } else {
-        npc.x -= 66
-    }
+    npcs.forEach(npc => {
+        npc.age += delta
+        if (npc.walkingRight) {
+            npc.x += npc.speed * delta
+        } else {
+            npc.x -= npc.speed * delta
+        }
 
-    if (npc.x > 1000) {
-        walkingRight = false
-    }
+        if (npc.x > 1000) {
+            npc.walkingRight = false
+        }
 
-    if (npc.x < 0) {
-        walkingRight = true
-    }
+        if (npc.x < 0) {
+            npc.walkingRight = true
+        }
 
-
+        if (npc.age > npc.maxAge) {
+            removeNPC(npc)
+            spawnNewNPC()
+        }
+    })
+    stats.entityCount = instance.localState._entities.size
+    stats.userCount = instance.users.size
     instance.step()
 }
 
+let prev = performance.now()
 setInterval(() => {
     const start = performance.now()
-    update()
+    const deltaMs = start - prev
+    prev = start
+    //console.log(deltaMs)
+    stats.registerDelta(deltaMs)
+    update(deltaMs / 1000)
     const end = performance.now()
     const frametime = end - start
-    //  console.log('connected clients', instance.users.size, ' :: ', frametime, 'time')
+    stats.registerCPUFrame(frametime)
+    stats.cpuMillisecondsPerTick = frametime // technically this is the previous frames' time by the time the client sees it
+    //console.log('connected clients', instance.users.size, ' :: ', frametime, 'time', instance.localState._entities.size)
 }, 50)
 
