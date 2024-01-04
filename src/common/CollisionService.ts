@@ -12,20 +12,20 @@ class CollisionService {
     this.system.remove(body);
   }
 
-  resolveAllCollisions() {
-    this.system.checkAll((response: Response) => {
-      if (
-        response.a.customOptions.type === "Entity" &&
-        response.b.customOptions.type === "Entity"
-      ) {
-        const { overlapV } = response;
-        response.a.setPosition(
-          response.a.x - overlapV.x,
-          response.a.y - overlapV.y
-        );
-      }
-    });
-  }
+  // resolveAllCollisions() {
+  //   this.system.checkAll((response: Response) => {
+  //     if (
+  //       response.a.customOptions.type === "Entity" &&
+  //       response.b.customOptions.type === "Entity"
+  //     ) {
+  //       const { overlapV } = response;
+  //       response.a.setPosition(
+  //         response.a.x - overlapV.x,
+  //         response.a.y - overlapV.y
+  //       );
+  //     }
+  //   });
+  // }
 
   resolveCollisionsForEntity(entity: Entity) {
     entity.updateColliderFromPosition();
@@ -39,8 +39,6 @@ class CollisionService {
       );
       response.a.updateBody();
       entity.updatePositionFromCollider();
-      // entity.colliderX = entity.collider.x;
-      // entity.colliderY = entity.collider.y;
     });
   }
 }

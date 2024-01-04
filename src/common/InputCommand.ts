@@ -1,7 +1,7 @@
 import { Binary, defineSchema } from "nengi";
 import { NType } from "./ncontext";
 
-export const moveSchema = defineSchema({
+export const inputSchema = defineSchema({
   up: Binary.Boolean,
   down: Binary.Boolean,
   left: Binary.Boolean,
@@ -12,8 +12,8 @@ export const moveSchema = defineSchema({
 /**
  * Defines user input representing moving with the keyboard or a directional pad
  */
-export class MoveCommand {
-  ntype = NType.MoveCommand;
+export class InputCommand {
+  ntype = NType.InputCommand;
   up = false;
   down = false;
   left = false;

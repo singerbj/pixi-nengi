@@ -5,12 +5,10 @@ import {
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from "../common/Constants";
-import { Entity } from "../common/Entity";
-import { calculateDistance, lerp } from "../common/Util";
 
 export class GraphicalEntity extends Container {
   graphics: Graphics;
-  serverPositionGraphics: Graphics;
+  // serverPositionGraphics: Graphics;
   // serverColliderGraphics: Graphics;
   nidText: Text;
   targetX: number = this.x;
@@ -26,11 +24,11 @@ export class GraphicalEntity extends Container {
 
     this.addChild(this.graphics);
 
-    this.serverPositionGraphics = new Graphics();
-    this.serverPositionGraphics.lineStyle(1, 0x00ff00);
-    this.serverPositionGraphics.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    // this.serverPositionGraphics = new Graphics();
+    // this.serverPositionGraphics.lineStyle(1, 0x00ff00);
+    // this.serverPositionGraphics.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
 
-    this.addChild(this.serverPositionGraphics);
+    // this.addChild(this.serverPositionGraphics);
 
     // this.serverColliderGraphics = new Graphics();
     // this.serverColliderGraphics.lineStyle(1, 0x0000ff);
@@ -63,32 +61,30 @@ export class GraphicalEntity extends Container {
   //     this.serverColliderGraphics.x = entity.x;
   //     this.serverColliderGraphics.y = entity.y;
   //   } else {
-  //     this.serverColliderGraphics.x = entity.x - entity.colliderX;
-  //     this.serverColliderGraphics.y = entity.y - entity.colliderY;
   //   }
   // }
 
-  updatePositionWithInterpolation(entity: Entity) {
-    this.targetX = entity.x;
-    this.targetY = entity.y;
+  // updatePositionWithInterpolation(entity: Entity) {
+  //   this.targetX = entity.x;
+  //   this.targetY = entity.y;
 
-    this.serverPositionGraphics.x = this.targetX - this.x;
-    this.serverPositionGraphics.y = this.targetY - this.y;
+  //   this.serverPositionGraphics.x = this.targetX - this.x;
+  //   this.serverPositionGraphics.y = this.targetY - this.y;
 
-    const distance = calculateDistance(
-      this.x,
-      this.y,
-      this.targetX,
-      this.targetY
-    );
+  //   const distance = calculateDistance(
+  //     this.x,
+  //     this.y,
+  //     this.targetX,
+  //     this.targetY
+  //   );
 
-    let factor: number = 1 - (MAX_DISTANCE - distance) / MAX_DISTANCE;
+  //   let factor: number = 1 - (MAX_DISTANCE - distance) / MAX_DISTANCE;
 
-    if (factor < 0 || factor < MIN_FACTOR) {
-      factor = 1;
-    }
+  //   if (factor < 0 || factor < MIN_FACTOR) {
+  //     factor = 1;
+  //   }
 
-    this.x = lerp(this.x, this.targetX, factor);
-    this.y = lerp(this.y, this.targetY, factor);
-  }
+  //   this.x = lerp(this.x, this.targetX, factor);
+  //   this.y = lerp(this.y, this.targetY, factor);
+  // }
 }

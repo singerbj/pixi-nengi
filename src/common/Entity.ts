@@ -3,13 +3,15 @@ import { Collidable, EntityBox, CollidableType } from "./Collidable";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Constants";
 import { NType } from "./ncontext";
 
+type Position = { x: number; y: number };
+
 export const entitySchema = defineSchema({
   // nid: Binary.UInt32 is already included by nengi
   // ntype: Binary.UInt8 is already included by nengi
   x: { type: Binary.Float64, interp: true },
   y: { type: Binary.Float64, interp: true },
-  // colliderX: { type: Binary.Float64, interp: false },
-  // colliderY: { type: Binary.Float64, interp: false },
+  sx: { type: Binary.Float64, interp: true },
+  sy: { type: Binary.Float64, interp: true },
 });
 
 /**
@@ -20,8 +22,11 @@ export const entitySchema = defineSchema({
 export class Entity implements Collidable {
   nid = 0; // will be assigned by nengi, 0 is a placeholder
   ntype = NType.Entity;
-  x = 0;
-  y = 0;
+  x = 0; // The raw x position of this entity
+  y = 0; // The raw y position of this entity
+  sx = 0; // The smoothed x position of this entity, for other clients to use visually and therfore the server to use for raycast checks
+  sy = 0; // The smoothed y position of this entity, for other clients to use visually and therfore the server to use for raycast checks
+  positions: Position[] = []; // The historical positions for this entity
   type: CollidableType = "Entity";
   collider: EntityBox;
 
@@ -31,9 +36,11 @@ export class Entity implements Collidable {
       this.ntype = entity.ntype;
       this.x = entity.x;
       this.y = entity.y;
+      this.sx = entity.sx;
+      this.sy = entity.sy;
     }
     this.collider = new EntityBox(
-      { x: this.x, y: this.y },
+      { x: entity ? this.x : this.sx, y: entity ? this.y : this.sy },
       PLAYER_WIDTH,
       PLAYER_HEIGHT,
       {},

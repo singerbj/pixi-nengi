@@ -7,9 +7,9 @@ export const calculateDistance = (
   x2: number,
   y2: number
 ) => {
-  const X = x2 - x1;
-  const Y = y2 - y1;
-  return Math.sqrt(X * X + Y * Y);
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  return { dist: Math.sqrt(dx * dx + dy * dy), dx, dy };
 };
 
 export const rand = (min: number, max: number) => {

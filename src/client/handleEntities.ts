@@ -5,8 +5,10 @@ import { NType } from "../common/ncontext";
 import { Entity } from "../common/Entity";
 import { StatsEntity } from "../common/StatsEntity";
 import { collisionService } from "../common/CollisionService";
+import { INTERPOLATION_DELAY } from "../common/Constants";
 
 let lastTime: number;
+const entitiesThatNeedColliderUpdate = new Map<number, boolean>();
 
 /**
  * Creates and synchronizes entities being from the nengi instance with the pixi renderer
@@ -19,7 +21,7 @@ export function handleEntities(
   state: State,
   renderer: PIXIRenderer
 ) {
-  const istate = interpolator.getInterpolatedState(100);
+  const istate = interpolator.getInterpolatedState(INTERPOLATION_DELAY);
 
   // changes in entities (create, update, delete)
   istate.forEach((snapshot) => {
@@ -41,8 +43,10 @@ export function handleEntities(
       }
     });
 
+    entitiesThatNeedColliderUpdate.clear();
     snapshot.updateEntities.forEach((diff: any) => {
       const { nid, prop, value } = diff;
+
       let entity: Entity | StatsEntity | undefined = state.entities.get(nid);
       if (entity === undefined) {
         entity = state.stats.get(nid);
@@ -53,15 +57,18 @@ export function handleEntities(
           return; // skip applying this state to the entity, we are predicting it instead
         }
         if (entity.ntype === NType.Entity) {
-          // @ts-ignore
-          entity[prop] = value;
-          const collider = (<Entity>entity).collider;
-          if (prop === "x") {
+          if (prop === "sx") {
+            // @ts-ignore
+            entity.x = value;
+            const collider = (<Entity>entity).collider;
             collider.setPosition(value, collider.y);
-            collider.updateBody(); //TODO: dont do this so often for better perf
-          } else if (prop === "y") {
+            entitiesThatNeedColliderUpdate.set(entity.nid, true);
+          } else if (prop === "sy") {
+            // @ts-ignore
+            entity.y = value;
+            const collider = (<Entity>entity).collider;
             collider.setPosition(collider.x, value);
-            collider.updateBody(); //TODO: dont do this so often for better perf
+            entitiesThatNeedColliderUpdate.set(entity.nid, true);
           }
         } else if (entity.ntype === NType.StatsEntity) {
           // @ts-ignore
@@ -72,6 +79,14 @@ export function handleEntities(
         console.log(
           `Unexpected entity data: | nid: ${nid} prop: ${prop} value: ${value}`
         );
+      }
+    });
+
+    // update colliders only once for each entity that was changed
+    entitiesThatNeedColliderUpdate.forEach((_, nid) => {
+      let entity: Entity | undefined = state.entities.get(nid);
+      if (entity) {
+        entity.collider.updateBody();
       }
     });
 

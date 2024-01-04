@@ -1,19 +1,22 @@
 import { Client } from "nengi";
-import { MoveCommand } from "../common/MoveCommand";
-import { move } from "../common/move";
+import { InputCommand } from "../common/InputCommand";
+import { handleInput } from "../common/handleInput";
 import { entitySchema } from "../common/Entity";
 import { State } from "./State";
 import { PIXIRenderer } from "../rendering/PIXIRenderer";
+import { ENTITY_SPEED } from "../common/Constants";
 
-export function predictMovement(
-  renderer: PIXIRenderer,
+export const predictInput = (
+  delta: number,
   state: State,
-  moveCommand: MoveCommand,
+  inputCommand: InputCommand,
   client: Client
-) {
+) => {
   const entity = state.entities.get(state.myId);
-  if (entity !== undefined) {
-    move(entity, moveCommand);
+  if (entity !== undefined && state.isPredictionEnabled) {
+    handleInput(entity, inputCommand);
+
+    // entity.y += ENTITY_SPEED * delta;
 
     const { x, y } = entity;
     client.predictor.addCustom(
@@ -23,4 +26,4 @@ export function predictMovement(
       entitySchema
     );
   }
-}
+};

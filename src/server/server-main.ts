@@ -3,10 +3,13 @@ import { NType, ncontext } from "../common/ncontext";
 import { uWebSocketsInstanceAdapter } from "nengi-uws-instance-adapter";
 import { Entity } from "../common/Entity";
 import { IdentityMessage } from "../common/IdentityMessage";
-import { move } from "../common/move";
+import { handleInput } from "../common/handleInput";
 import { StatsEntity } from "../common/StatsEntity";
 import { rand } from "../common/Util";
 import { collisionService } from "../common/CollisionService";
+import { ENTITY_SPEED, TICK_RATE } from "../common/Constants";
+import { InputCommand } from "../common/InputCommand";
+import { followPath } from "./followPath";
 
 // mocks hitting an external service to authenticate a user
 const authenticateUser = async (handshake: any) => {
@@ -47,10 +50,14 @@ const stats = new StatsEntity();
 main.addEntity(stats);
 
 const entityMap = new Map<number, Entity>();
+let entityInputs: { entity: Entity; command: any }[] = [];
+const entitiesWithInput = new Map<number, boolean>();
 
 // TODO: Load level
 
 const update = (delta: number) => {
+  entityInputs = [];
+  entitiesWithInput.clear();
   while (!queue.isEmpty()) {
     const networkEvent = queue.next();
 
@@ -84,13 +91,16 @@ const update = (delta: number) => {
     }
 
     // user input
+
     if (networkEvent.type === NetworkEvent.CommandSet) {
       const { user, commands, clientTick } = networkEvent;
       const { entity, view } = user as MyUser;
 
       commands.forEach((command: any) => {
-        if (command.ntype === NType.MoveCommand) {
-          move(entity, command);
+        if (command.ntype === NType.InputCommand) {
+          // handleInput(entity, command);
+          entityInputs.push({ entity, command });
+          entitiesWithInput.set(entity.nid, true);
         }
       });
     }
@@ -100,18 +110,37 @@ const update = (delta: number) => {
   // game logic goes here //
   //////////////////////////
 
-  // update all colliders based on entities' positions
-  entityMap.forEach((entity: Entity) => {
-    entity.updateColliderFromPosition();
+  // entityMap.forEach((entity, nid) => {
+  //   entity.y += ENTITY_SPEED * delta;
+  // });
+
+  // TODO: I think this technically works. But visually it looks bad
+  //       I need to add the smooth and raw representations of the player on the server I think to help with this
+  //       Maybe I can just remember the locations of the previous frame and send n frames in the past to the client or something?
+  //       ...and then do collision stuff based on that smooth representation rather than the raw? (and shooting eventually)
+  entityMap.forEach((entity, nid) => {
+    if (entitiesWithInput.get(nid) === undefined) {
+      entityInputs.push({ entity, command: new InputCommand(delta) });
+    }
   });
-  // resolve all collisions
-  collisionService.resolveAllCollisions();
-  // update all entity positions based on the seperated collider positions
-  entityMap.forEach((entity: Entity) => {
-    entity.updatePositionFromCollider();
+  entityInputs.forEach(({ entity, command }) => {
+    handleInput(entity, command);
+  });
+  entityMap.forEach((entity) => {
+    entity.positions.push({ x: entity.x, y: entity.y });
+    followPath(entity, delta);
   });
 
-  collisionService;
+  // // update all colliders based on entities' positions
+  // entityMap.forEach((entity: Entity) => {
+  //   entity.updateColliderFromPosition();
+  // });
+  // // resolve all collisions
+  // collisionService.resolveAllCollisions();
+  // // update all entity positions based on the seperated collider positions
+  // entityMap.forEach((entity: Entity) => {
+  //   entity.updatePositionFromCollider();
+  // });
 
   // stats compilation
   stats.entityCount = instance.localState._entities.size;
@@ -119,8 +148,6 @@ const update = (delta: number) => {
 
   instance.step();
 };
-
-const TICK_RATE = 0; //1000 / 60;
 
 let prev = performance.now();
 const loop = () => {

@@ -70,13 +70,13 @@ export class PIXIRenderer {
   updateGraphicalEntity(entity: Entity) {
     const graphicalEntity = this.graphicalEntitites.get(entity.nid);
     if (graphicalEntity) {
-      const isLocalPlayer = entity.nid === this.state.myId;
-      if (isLocalPlayer) {
-        graphicalEntity.x = entity.x;
-        graphicalEntity.y = entity.y;
-      } else {
-        graphicalEntity.updatePositionWithInterpolation(entity);
-      }
+      // const isLocalPlayer = entity.nid === this.state.myId;
+      // if (isLocalPlayer) {
+      graphicalEntity.x = entity.x;
+      graphicalEntity.y = entity.y;
+      // } else {
+      //   graphicalEntity.updatePositionWithInterpolation(entity);
+      // }
     }
   }
 
@@ -96,10 +96,10 @@ export class PIXIRenderer {
   }
 
   cameraFollow() {
-    const playerEntity = this.state.entities.get(this.state.myId);
-    if (playerEntity) {
-      this.camera.x = -playerEntity.x + window.innerWidth * 0.5;
-      this.camera.y = -playerEntity.y + window.innerHeight * 0.5;
+    const entity = this.state.entities.get(this.state.myId);
+    if (entity) {
+      this.camera.x = -entity.x + window.innerWidth * 0.5;
+      this.camera.y = -entity.y + window.innerHeight * 0.5;
     }
   }
 }

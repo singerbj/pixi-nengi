@@ -39,8 +39,6 @@ export class EntityBox extends Box {
 
 export interface Collidable {
   type: CollidableType;
-  // colliderX = 0;
-  // colliderY = 0;
   collider: EntityBox;
   updateColliderFromPosition: () => void;
   updatePositionFromCollider: () => void;
@@ -50,8 +48,6 @@ export interface Collidable {
 //   type: CollidableType;
 //   x = 0;
 //   y = 0;
-//   // colliderX = 0;
-//   // colliderY = 0;
 //   collider: EntityBox;
 
 //   constructor(type: string) {
@@ -84,8 +80,6 @@ export interface Collidable {
 //   updateColliderFromPosition() {
 //     this.collider.setPosition(this.x, this.y);
 //     this.collider.updateBody();
-//     // this.colliderX = this.collider.pos.x;
-//     // this.colliderY = this.collider.pos.y;
 //   }
 
 //   updatePositionFromCollider() {

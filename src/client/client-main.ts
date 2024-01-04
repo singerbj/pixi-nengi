@@ -7,7 +7,7 @@ import { handleEntities } from "./handleEntities";
 import { PIXIRenderer } from "../rendering/PIXIRenderer";
 import { State } from "./State";
 import { InputSystem } from "./InputSystem";
-import { predictMovement } from "./predictMovement";
+import { predictInput } from "./predictInput";
 
 /**
  * A basic nengi client example.
@@ -45,14 +45,15 @@ window.addEventListener("load", async () => {
       handleMessages(client, state);
       handleEntities(interpolator, state, renderer);
 
+      const inputCommand = inputSystem.createNetworkCommand(delta);
+      client.addCommand(inputCommand);
+      predictInput(delta, state, inputCommand, client);
+      client.flush();
+
+      // after we did everything, render all the entities
       state.entities.forEach((entity) => {
         renderer.updateGraphicalEntity(entity);
       });
-
-      const moveCommand = inputSystem.createNetworkCommand(delta);
-      client.addCommand(moveCommand);
-      predictMovement(renderer, state, moveCommand, client);
-      client.flush();
 
       inputSystem.resetKeys();
       renderer.cameraFollow();

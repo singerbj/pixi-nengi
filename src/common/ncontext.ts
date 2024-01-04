@@ -1,7 +1,7 @@
 import { Context, defineSchema } from "nengi";
 import { identitySchema } from "./IdentityMessage";
 import { entitySchema } from "./Entity";
-import { moveSchema } from "./MoveCommand";
+import { inputSchema } from "./InputCommand";
 import { statsEntitySchema } from "./StatsEntity";
 
 /**
@@ -11,7 +11,7 @@ import { statsEntitySchema } from "./StatsEntity";
 export enum NType {
   NULL = 0,
   IdentityMessage,
-  MoveCommand,
+  InputCommand,
   Entity,
   StatsEntity,
   Channel,
@@ -20,6 +20,6 @@ export enum NType {
 export const ncontext = new Context();
 ncontext.register(NType.IdentityMessage, identitySchema);
 ncontext.register(NType.Entity, entitySchema);
-ncontext.register(NType.MoveCommand, moveSchema);
+ncontext.register(NType.InputCommand, inputSchema);
 ncontext.register(NType.StatsEntity, statsEntitySchema);
 ncontext.register(NType.Channel, defineSchema({}));

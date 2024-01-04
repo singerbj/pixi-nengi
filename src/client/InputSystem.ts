@@ -1,4 +1,4 @@
-import { MoveCommand } from "../common/MoveCommand";
+import { InputCommand } from "../common/InputCommand";
 
 // we could make this editable with an api, but this is just quick and dirty
 const keybindingLayer = new Map();
@@ -64,9 +64,9 @@ export class InputSystem {
     }
   }
 
-  createNetworkCommand(delta: number): MoveCommand {
-    const moveCommand = new MoveCommand(delta);
-    Object.assign(moveCommand, this.perFrameInputState);
-    return moveCommand;
+  createNetworkCommand(delta: number): InputCommand {
+    const inputCommand = new InputCommand(delta);
+    Object.assign(inputCommand, this.perFrameInputState);
+    return inputCommand;
   }
 }

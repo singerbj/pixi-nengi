@@ -1,7 +1,7 @@
 import { Client, PredictionErrorEntity, PredictionErrorProperty } from "nengi";
 import { State } from "./State";
 import { Entity, entitySchema } from "../common/Entity";
-import { move } from "../common/move";
+import { handleInput } from "../common/handleInput";
 import { NType } from "../common/ncontext";
 
 export function handlePredictionErrors(client: Client, state: State) {
@@ -31,9 +31,9 @@ export function handlePredictionErrors(client: Client, state: State) {
           unconfirmedCommands.forEach((unconfirmedCommandSet, clientTick) => {
             unconfirmedCommandSet.forEach((unconfirmedCommand) => {
               // example assumes 'PlayerInput' is the command we are predicting
-              if (unconfirmedCommand.ntype === NType.MoveCommand) {
+              if (unconfirmedCommand.ntype === NType.InputCommand) {
                 // entity.processMove(command)
-                move(entity, unconfirmedCommand);
+                handleInput(entity, unconfirmedCommand);
                 // client.addCustomPrediction(clientTick, prediction, ['x', 'y']) // overwrite
                 const { nid, x, y } = entity;
                 client.predictor.addCustom(
