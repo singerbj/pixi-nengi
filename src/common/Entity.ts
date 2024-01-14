@@ -26,7 +26,7 @@ export class Entity implements Collidable {
   y = 0; // The raw y position of this entity
   sx = 0; // The smoothed x position of this entity, for other clients to use visually and therfore the server to use for raycast checks
   sy = 0; // The smoothed y position of this entity, for other clients to use visually and therfore the server to use for raycast checks
-  positions: Position[] = []; // The historical positions for this entity
+  positions: Position[] = []; // The historical positions for this entity used for path following
   type: CollidableType = "Entity";
   collider: EntityBox;
 

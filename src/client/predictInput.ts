@@ -4,19 +4,21 @@ import { handleInput } from "../common/handleInput";
 import { entitySchema } from "../common/Entity";
 import { State } from "./State";
 import { PIXIRenderer } from "../rendering/PIXIRenderer";
-import { ENTITY_SPEED } from "../common/Constants";
 
 export const predictInput = (
   delta: number,
+  renderer: PIXIRenderer,
   state: State,
   inputCommand: InputCommand,
   client: Client
 ) => {
   const entity = state.entities.get(state.myId);
   if (entity !== undefined && state.isPredictionEnabled) {
-    handleInput(entity, inputCommand);
+    const shootingInfo = handleInput(entity, inputCommand);
 
-    // entity.y += ENTITY_SPEED * delta;
+    if (shootingInfo.shooting) {
+      renderer.renderShot(shootingInfo);
+    }
 
     const { x, y } = entity;
     client.predictor.addCustom(

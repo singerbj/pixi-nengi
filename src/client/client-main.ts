@@ -22,7 +22,7 @@ window.addEventListener("load", async () => {
 
   const client = new Client(ncontext, WebSocketClientAdapter, 20);
   const interpolator = new Interpolator(client);
-  const inputSystem = new InputSystem();
+  const inputSystem = new InputSystem(renderer);
 
   client.setDisconnectHandler((reason, event) => {
     console.log("disconnected", reason, event);
@@ -47,7 +47,7 @@ window.addEventListener("load", async () => {
 
       const inputCommand = inputSystem.createNetworkCommand(delta);
       client.addCommand(inputCommand);
-      predictInput(delta, state, inputCommand, client);
+      predictInput(delta, renderer, state, inputCommand, client);
       client.flush();
 
       // after we did everything, render all the entities

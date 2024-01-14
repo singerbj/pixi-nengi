@@ -2,50 +2,52 @@
 // TODO: the historian is not yet implemented yet for nengi 2. might have to wait for that
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// import { Instance } from "nengi";
-// import { Entity } from "../common/Entity";
+import { collisionService } from "../common/CollisionService";
+import { Entity } from "../common/Entity";
+import Historian from "./historian/Historian";
 
-// export default (instance: Instance, timeAgo: number) => {
-//   // this is querying the whole game area of the demo, but if the game had a lot of entities
-//   // it would make sense to query just the rectangle containing the ray + a little bit of padding
-//   const area = {
-//     x: 0,
-//     y: 0,
-//     z: 0,
-//     halfWidth: 999999,
-//     halfHeight: 999999,
-//     halfDepth: 999999,
-//   };
+type Point = { x: number; y: number };
 
-//   const hits = [];
-//   const pastEntities = instance.historian.getLagCompensatedArea(timeAgo, area);
+type BulletHit = {
+  point: Point;
+  nid: number;
+};
 
-//   pastEntities.forEach((pastEntity: Entity) => {
-//     // look up the real entity
-//     // -- the objects returned by instance.historian are just shallow copies from the past
-//     const realEntity = instance.entities.get(pastEntity.nid);
+export default (
+  historian: Historian,
+  timeAgo: number,
+  originX: number,
+  originY: number,
+  targetX: number,
+  targetY: number,
+  ignoreNids: number[] = []
+) => {
+  // this is querying the whole game area of the demo, but if the game had a lot of entities
+  // // it would make sense to query just the rectangle containing the ray + a little bit of padding
+  // const area = {
+  //   x: 0,
+  //   y: 0,
+  //   z: 0,
+  //   halfWidth: 999999,
+  //   halfHeight: 999999,
+  //   halfDepth: 999999,
+  // };
 
-//     // real entity may not still exist. Just b/c it did in the past is no guarantee!
-//     if (realEntity) {
-//       // save position
-//       const temp = Object.assign({}, realEntity.mesh.position);
+  const hits: BulletHit[] = [];
+  const pastEntities = historian.getLagCompensatedArea(timeAgo);
 
-//       // rewind to the lag compensated position
-//       realEntity.x = pastEntity.x;
-//       realEntity.y = pastEntity.y;
-//       realEntity.z = pastEntity.z;
-//       realEntity.mesh.computeWorldMatrix(true);
+  pastEntities.forEach((pastEntity: Entity) => {
+    const hit = collisionService.system.raycast(
+      { x: originX, y: originY },
+      { x: targetX, y: targetY }
+    );
 
-//       // see if the ray collides with an entity at the lag compensated position
-//       const raycheck = ray.intersectsMesh(realEntity.mesh);
-
-//       // restore the entity back to its current position (undo the lag compensated translation)
-//       Object.assign(realEntity.mesh.position, temp);
-
-//       if (raycheck.hit) {
-//         hits.push(realEntity);
-//       }
-//     }
-//   });
-//   return hits;
-// };
+    if (hit && !ignoreNids.includes(pastEntity.nid)) {
+      hits.push({
+        point: hit.point,
+        nid: pastEntity.nid,
+      });
+    }
+  });
+  return hits;
+};

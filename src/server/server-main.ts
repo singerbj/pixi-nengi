@@ -7,9 +7,17 @@ import { handleInput } from "../common/handleInput";
 import { StatsEntity } from "../common/StatsEntity";
 import { rand } from "../common/Util";
 import { collisionService } from "../common/CollisionService";
-import { ENTITY_SPEED, TICK_RATE } from "../common/Constants";
+import {
+  HISTORIAN_TICKS,
+  INTERPOLATION_DELAY,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
+  TICK_RATE,
+} from "../common/Constants";
 import { InputCommand } from "../common/InputCommand";
 import { followPath } from "./followPath";
+import Historian from "./historian/Historian";
+import lagCompensatedHitscanCheck from "./lagCompensatedHitscanCheck";
 
 // mocks hitting an external service to authenticate a user
 const authenticateUser = async (handshake: any) => {
@@ -50,8 +58,10 @@ const stats = new StatsEntity();
 main.addEntity(stats);
 
 const entityMap = new Map<number, Entity>();
-let entityInputs: { entity: Entity; command: any }[] = [];
+let entityInputs: { entity: Entity; command: any; user: User | null }[] = [];
 const entitiesWithInput = new Map<number, boolean>();
+
+const historian = new Historian(TICK_RATE, HISTORIAN_TICKS, "nid");
 
 // TODO: Load level
 
@@ -87,7 +97,7 @@ const update = (delta: number) => {
       main.addEntity(entity);
       entityMap.set(entity.nid, entity);
       user.queueMessage(new IdentityMessage(entity.nid));
-      console.log("connected", { user });
+      // console.log("connected", { user });
     }
 
     // user input
@@ -99,7 +109,7 @@ const update = (delta: number) => {
       commands.forEach((command: any) => {
         if (command.ntype === NType.InputCommand) {
           // handleInput(entity, command);
-          entityInputs.push({ entity, command });
+          entityInputs.push({ entity, command, user });
           entitiesWithInput.set(entity.nid, true);
         }
       });
@@ -120,15 +130,36 @@ const update = (delta: number) => {
   //       ...and then do collision stuff based on that smooth representation rather than the raw? (and shooting eventually)
   entityMap.forEach((entity, nid) => {
     if (entitiesWithInput.get(nid) === undefined) {
-      entityInputs.push({ entity, command: new InputCommand(delta) });
+      entityInputs.push({
+        entity,
+        command: new InputCommand(delta),
+        user: null,
+      });
     }
   });
-  entityInputs.forEach(({ entity, command }) => {
-    handleInput(entity, command);
+  entityInputs.forEach(({ entity, command, user }) => {
+    const shootingInfo = handleInput(entity, command);
+    if (user !== null && shootingInfo.shooting) {
+      const timeAgo = user.latency + INTERPOLATION_DELAY;
+      const hits = lagCompensatedHitscanCheck(
+        historian,
+        timeAgo,
+        entity.x + PLAYER_WIDTH / 2,
+        entity.x + PLAYER_HEIGHT / 2,
+        shootingInfo.mouseX,
+        shootingInfo.mouseY,
+        [entity.nid]
+      );
+      console.log(hits);
+    }
   });
+
+  // save the final list of entities for the historian
+  const entities: Entity[] = [];
   entityMap.forEach((entity) => {
     entity.positions.push({ x: entity.x, y: entity.y });
     followPath(entity, delta);
+    entities.push(entity);
   });
 
   // // update all colliders based on entities' positions
@@ -145,6 +176,11 @@ const update = (delta: number) => {
   // stats compilation
   stats.entityCount = instance.localState._entities.size;
   stats.userCount = instance.users.size;
+
+  // lagCompensatedHitscanCheck(historian, 500);
+
+  // record state with historian
+  historian.record(instance.tick, entities, []);
 
   instance.step();
 };

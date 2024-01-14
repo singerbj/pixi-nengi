@@ -6,6 +6,10 @@ export const inputSchema = defineSchema({
   down: Binary.Boolean,
   left: Binary.Boolean,
   right: Binary.Boolean,
+  shooting: Binary.Boolean,
+  mouseX: Binary.Float64,
+  mouseY: Binary.Float64,
+
   delta: Binary.Float64,
 });
 
@@ -18,6 +22,9 @@ export class InputCommand {
   down = false;
   left = false;
   right = false;
+  shooting = false;
+  mouseX = 0;
+  mouseY = 0;
   delta: number;
 
   constructor(delta: number) {

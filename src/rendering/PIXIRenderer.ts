@@ -1,13 +1,16 @@
-import { Container, DisplayObject, Renderer, Text, TextStyle } from "pixi.js";
+import { Container, Graphics, Renderer, Text, TextStyle } from "pixi.js";
 import { State } from "../client/State";
-import { generateBackground } from "../client/generateBackground";
+import { generateBackground } from "./generateBackground";
 import { Entity } from "../common/Entity";
 import { GraphicalEntity } from "./GraphicalEntity";
 import { StatsEntity } from "../common/StatsEntity";
+import { ShootingInfo } from "../common/handleInput";
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
 
 export class PIXIRenderer {
   renderer: Renderer;
   stage: Container;
+  background: Graphics;
   stats: Text;
   camera: Container;
   graphicalEntitites: Map<number, GraphicalEntity>;
@@ -31,6 +34,18 @@ export class PIXIRenderer {
     });
 
     this.stage = new Container();
+    this.stage.eventMode = "static";
+    this.background = new Graphics();
+    this.background.beginFill(0x222222);
+    this.background.drawRect(
+      this.renderer.screen.x,
+      this.renderer.screen.y,
+      this.renderer.screen.width,
+      this.renderer.screen.height
+    );
+    this.background.endFill();
+    this.stage.addChild(this.background);
+
     this.stats = new Text(
       "",
       new TextStyle({
@@ -91,15 +106,41 @@ export class PIXIRenderer {
     `;
   }
 
+  updateBackground() {
+    this.background.x = this.renderer.screen.x;
+    this.background.y = this.renderer.screen.y;
+    this.background.width = this.renderer.screen.width;
+    this.background.height = this.renderer.screen.height;
+  }
+
   render() {
+    this.updateBackground();
     this.renderer.render(this.stage);
   }
 
   cameraFollow() {
     const entity = this.state.entities.get(this.state.myId);
     if (entity) {
-      this.camera.x = -entity.x + window.innerWidth * 0.5;
-      this.camera.y = -entity.y + window.innerHeight * 0.5;
+      this.camera.x =
+        -entity.x + this.renderer.screen.width / 2 - PLAYER_WIDTH / 2;
+      this.camera.y =
+        -entity.y + this.renderer.screen.height / 2 - PLAYER_HEIGHT / 2;
     }
+  }
+
+  renderShot(shootingInfo: ShootingInfo) {
+    const { entity, mouseX, mouseY } = shootingInfo;
+
+    let line = new Graphics();
+    line
+      .lineStyle(1, 0xffffff)
+      .moveTo(entity.x + PLAYER_WIDTH / 2, entity.y + PLAYER_HEIGHT / 2)
+      .lineTo(mouseX, mouseY);
+
+    this.camera.addChild(line);
+
+    setTimeout(() => {
+      line.destroy();
+    }, 250);
   }
 }

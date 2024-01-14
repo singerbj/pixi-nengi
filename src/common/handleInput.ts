@@ -3,11 +3,22 @@ import { ENTITY_SPEED, GRAVITY } from "./Constants";
 import { Entity } from "./Entity";
 import { InputCommand } from "./InputCommand";
 
-export const handleInput = (entity: Entity, inputCommand: InputCommand) => {
+export type ShootingInfo = {
+  entity: Entity;
+  shooting: boolean;
+  mouseX: number;
+  mouseY: number;
+};
+
+export const handleInput = (
+  entity: Entity,
+  inputCommand: InputCommand
+): ShootingInfo => {
   // the correct version of this is a NORMALIZED VECTOR * delta
   // this math is incorrect
 
-  const { up, down, left, right, delta } = inputCommand;
+  const { up, down, left, right, delta, shooting, mouseX, mouseY } =
+    inputCommand;
   if (up) {
     entity.y -= ENTITY_SPEED * delta;
   }
@@ -22,7 +33,9 @@ export const handleInput = (entity: Entity, inputCommand: InputCommand) => {
   }
 
   // gravity
-  entity.y += GRAVITY * delta;
+  // entity.y += GRAVITY * delta;
 
   collisionService.resolveCollisionsForEntity(entity);
+
+  return { entity, shooting, mouseX, mouseY };
 };
