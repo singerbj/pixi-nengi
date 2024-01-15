@@ -21,6 +21,7 @@ export const isCollidableType = (
 
 export type EntityBoxCustomOptions = {
   type: CollidableType;
+  nid: number;
 };
 
 export class EntityBox extends Box {

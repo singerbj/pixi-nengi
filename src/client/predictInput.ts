@@ -14,10 +14,11 @@ export const predictInput = (
 ) => {
   const entity = state.entities.get(state.myId);
   if (entity !== undefined && state.isPredictionEnabled) {
-    const shootingInfo = handleInput(entity, inputCommand);
+    const [shooting, shotMessage] = handleInput(entity, inputCommand);
 
-    if (shootingInfo.shooting) {
-      renderer.renderShot(shootingInfo);
+    if (shooting) {
+      //TODO: uncomment to draw a predicted shot
+      // renderer.renderShot(shotMessage);
     }
 
     const { x, y } = entity;

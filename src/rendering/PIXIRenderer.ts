@@ -6,6 +6,7 @@ import { GraphicalEntity } from "./GraphicalEntity";
 import { StatsEntity } from "../common/StatsEntity";
 import { ShootingInfo } from "../common/handleInput";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
+import { ShotMessage } from "../common/ShotMessage";
 
 export class PIXIRenderer {
   renderer: Renderer;
@@ -128,19 +129,37 @@ export class PIXIRenderer {
     }
   }
 
-  renderShot(shootingInfo: ShootingInfo) {
-    const { entity, mouseX, mouseY } = shootingInfo;
+  renderShot(shotMessage: ShotMessage) {
+    const { originX, originY, targetX, targetY, hit, hitX, hitY } = shotMessage;
 
     let line = new Graphics();
-    line
-      .lineStyle(1, 0xffffff)
-      .moveTo(entity.x + PLAYER_WIDTH / 2, entity.y + PLAYER_HEIGHT / 2)
-      .lineTo(mouseX, mouseY);
 
+    let hitPoint: Graphics | undefined = undefined;
+    if (hit) {
+      hitPoint = new Graphics();
+      hitPoint
+        .lineStyle(10, 0xff0000)
+        .moveTo(hitX - 4, hitY - 4)
+        .lineTo(hitX + 4, hitY + 4);
+
+      line
+        .lineStyle(1, hit ? 0x00ff00 : 0xffffff)
+        .moveTo(originX, originY)
+        .lineTo(hitX, hitY);
+    } else {
+      line
+        .lineStyle(1, hit ? 0x00ff00 : 0xffffff)
+        .moveTo(originX, originY)
+        .lineTo(targetX, targetY);
+    }
     this.camera.addChild(line);
+    hitPoint !== undefined && this.camera.addChild(hitPoint);
 
     setTimeout(() => {
       line.destroy();
     }, 250);
+    setTimeout(() => {
+      hitPoint && hitPoint.destroy();
+    }, 100);
   }
 }

@@ -46,6 +46,7 @@ export class Entity implements Collidable {
       {},
       {
         type: this.type,
+        nid: this.nid,
       }
     );
   }

@@ -12,6 +12,24 @@ export const calculateDistance = (
   return { dist: Math.sqrt(dx * dx + dy * dy), dx, dy };
 };
 
+export const getNewPointOnLineWithDistance = (
+  originX: number,
+  originY: number,
+  targetX: number,
+  targetY: number,
+  distance: number
+): [number, number] => {
+  let m = (targetY - originY) / (targetX - originX); // slope of the line
+  let c = originY - m * originX; // y-intercept of the line
+
+  let x =
+    originX +
+    (targetX < originX ? -distance : distance) / Math.sqrt(1 + m ** 2); // new x-coordinate
+  let y = m * x + c; // new y-coordinate
+
+  return [x, y];
+};
+
 export const rand = (min: number, max: number) => {
   min = Math.ceil(min);
   max = Math.floor(max);

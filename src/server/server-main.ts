@@ -18,6 +18,7 @@ import { InputCommand } from "../common/InputCommand";
 import { followPath } from "./followPath";
 import Historian from "./historian/Historian";
 import lagCompensatedHitscanCheck from "./lagCompensatedHitscanCheck";
+import { ShotMessage } from "../common/ShotMessage";
 
 // mocks hitting an external service to authenticate a user
 const authenticateUser = async (handshake: any) => {
@@ -49,15 +50,17 @@ uws.listen(port, () => {
 });
 instance.onConnect = authenticateUser;
 
-const main = new Channel(instance.localState);
+const mainChannel = new Channel(instance.localState);
 
 const queue = instance.queue;
 type MyUser = User & { entity: any; view: AABB2D }; // view is currently not used
 
 const stats = new StatsEntity();
-main.addEntity(stats);
+mainChannel.addEntity(stats);
 
 const entityMap = new Map<number, Entity>();
+const entityUserMap = new Map<number, User>();
+
 let entityInputs: { entity: Entity; command: any; user: User | null }[] = [];
 const entitiesWithInput = new Map<number, boolean>();
 
@@ -76,14 +79,15 @@ const update = (delta: number) => {
       const user = networkEvent.user as MyUser;
       const entity = user.entity;
       entityMap.delete(entity.nid);
+      entityUserMap.delete(entity.nid);
       collisionService.remove(entity.collider);
-      main.removeEntity(entity);
+      mainChannel.removeEntity(entity);
     }
 
     // connections
     if (networkEvent.type === NetworkEvent.UserConnected) {
       const user = networkEvent.user as MyUser;
-      main.subscribe(user);
+      mainChannel.subscribe(user);
       const entity = new Entity();
       collisionService.insert(entity.collider);
 
@@ -94,8 +98,12 @@ const update = (delta: number) => {
       entity.updateColliderFromPosition();
 
       user.entity = entity;
-      main.addEntity(entity);
+      mainChannel.addEntity(entity);
+      if (entity.collider.customOptions !== undefined) {
+        entity.collider.customOptions.nid = entity.nid;
+      }
       entityMap.set(entity.nid, entity);
+      entityUserMap.set(entity.nid, user);
       user.queueMessage(new IdentityMessage(entity.nid));
       // console.log("connected", { user });
     }
@@ -137,21 +145,35 @@ const update = (delta: number) => {
       });
     }
   });
+
+  let shotReports: ShotMessage[] = [];
   entityInputs.forEach(({ entity, command, user }) => {
-    const shootingInfo = handleInput(entity, command);
-    if (user !== null && shootingInfo.shooting) {
+    const [shooting, shotMessage] = handleInput(entity, command);
+    if (user !== null && shooting) {
       const timeAgo = user.latency + INTERPOLATION_DELAY;
-      const hits = lagCompensatedHitscanCheck(
-        historian,
-        timeAgo,
-        entity.x + PLAYER_WIDTH / 2,
-        entity.x + PLAYER_HEIGHT / 2,
-        shootingInfo.mouseX,
-        shootingInfo.mouseY,
-        [entity.nid]
+      shotReports = shotReports.concat(
+        lagCompensatedHitscanCheck(
+          historian,
+          entity.nid,
+          timeAgo,
+          shotMessage.originX + PLAYER_WIDTH / 2,
+          shotMessage.originY + PLAYER_WIDTH / 2,
+          shotMessage.targetX,
+          shotMessage.targetY,
+          [entity.nid]
+        )
       );
-      console.log(hits);
     }
+  });
+
+  // report shots from users to the other users
+  shotReports.forEach((shotReport) => {
+    mainChannel.users.forEach((user) => {
+      // const userFromMap = entityUserMap.get(shotReport.shooterId);
+      // if (userFromMap && userFromMap.id !== user.id) {
+      user.queueMessage(shotReport);
+      // }
+    });
   });
 
   // save the final list of entities for the historian

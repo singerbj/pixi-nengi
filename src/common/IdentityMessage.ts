@@ -9,8 +9,8 @@ export const identitySchema = defineSchema({
  * Defines a message that tells the client which entity it controls
  */
 export class IdentityMessage {
-  myId: number;
   ntype = NType.IdentityMessage;
+  myId: number;
   constructor(nid: number) {
     this.myId = nid;
   }

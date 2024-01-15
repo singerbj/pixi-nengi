@@ -1,10 +1,5 @@
 import { Container, Graphics, Text } from "pixi.js";
-import {
-  MAX_DISTANCE,
-  MIN_FACTOR,
-  PLAYER_HEIGHT,
-  PLAYER_WIDTH,
-} from "../common/Constants";
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
 
 export class GraphicalEntity extends Container {
   graphics: Graphics;
@@ -78,7 +73,7 @@ export class GraphicalEntity extends Container {
   //     this.targetY
   //   );
 
-  //   let factor: number = 1 - (MAX_DISTANCE - distance) / MAX_DISTANCE;
+  //   let factor: number = 1 - (MAX_INTERPOLATION_DISTANCE - distance) / MAX_INTERPOLATION_DISTANCE;
 
   //   if (factor < 0 || factor < MIN_FACTOR) {
   //     factor = 1;
