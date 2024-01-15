@@ -9,3 +9,4 @@ export const GRAVITY = 100;
 export const FOLLOW_BUDGET_FACTOR = 1.1;
 export const HISTORIAN_TICKS = 40;
 export const SHOT_DISTANCE = 1000;
+export const MAP_OBJECT_STANDARD_FACTOR = 20;

@@ -36,6 +36,7 @@
     "nengi-uws-instance-adapter": "^0.4.0",
     "nengi-websocket-client-adapter": "^0.7.0",
     "nengi-ws-client-adapter": "^0.3.0",
-    "pixi.js": "^7.2.4"
+    "pixi.js": "^7.2.4",
+    "tiled-utils": "^4.2.0"
   }
 }

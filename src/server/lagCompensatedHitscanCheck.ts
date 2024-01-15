@@ -49,7 +49,8 @@ export default (
       (body): boolean => {
         //TODO: fix this somehow
         //@ts-ignore
-        return !ignoreNids.includes(body.customOptions.nid);
+        const nid = body.customOptions.nid;
+        return nid === undefined || !ignoreNids.includes(nid);
       }
     );
 

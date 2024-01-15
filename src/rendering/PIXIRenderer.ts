@@ -4,9 +4,9 @@ import { generateBackground } from "./generateBackground";
 import { Entity } from "../common/Entity";
 import { GraphicalEntity } from "./GraphicalEntity";
 import { StatsEntity } from "../common/StatsEntity";
-import { ShootingInfo } from "../common/handleInput";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
 import { ShotMessage } from "../common/ShotMessage";
+import { MapObject } from "../common/MapObject";
 
 export class PIXIRenderer {
   renderer: Renderer;
@@ -161,5 +161,20 @@ export class PIXIRenderer {
     setTimeout(() => {
       hitPoint && hitPoint.destroy();
     }, 100);
+  }
+
+  renderMap(mapObjects: MapObject[]) {
+    mapObjects.forEach((mapObject) => {
+      const mapObjectGraphic = new Graphics();
+      mapObjectGraphic.beginFill(0xdddddd);
+      mapObjectGraphic.drawRect(
+        mapObject.x,
+        mapObject.y,
+        mapObject.width,
+        mapObject.height
+      );
+      mapObjectGraphic.endFill();
+      this.camera.addChild(mapObjectGraphic);
+    });
   }
 }

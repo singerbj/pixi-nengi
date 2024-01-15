@@ -4,12 +4,7 @@ import { Entity } from "./Entity";
 import { InputCommand } from "./InputCommand";
 import { ShotMessage } from "./ShotMessage";
 
-export type ShootingInfo = {
-  entity: Entity;
-  shooting: boolean;
-  mouseX: number;
-  mouseY: number;
-};
+// const jumpTicksTracker = new Map<number, number>();
 
 export const handleInput = (
   entity: Entity,
@@ -35,7 +30,7 @@ export const handleInput = (
   entity.y += ENTITY_SPEED * normalizedVector.y * delta;
 
   // gravity
-  // entity.y += GRAVITY * delta;
+  entity.y += GRAVITY * delta;
 
   collisionService.resolveCollisionsForEntity(entity);
 

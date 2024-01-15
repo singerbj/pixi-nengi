@@ -1,5 +1,5 @@
 import { Binary, defineSchema } from "nengi";
-import { Collidable, EntityBox, CollidableType } from "./Collidable";
+import { DynamicCollidable, CustomBox, CollidableType } from "./Collidable";
 import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Constants";
 import { NType } from "./ncontext";
 
@@ -19,7 +19,7 @@ export const entitySchema = defineSchema({
  * out of laziness, but this is not a nengi class -- it belongs to your game, call it
  * hero or goblin or whatever! :)
  */
-export class Entity implements Collidable {
+export class Entity implements DynamicCollidable {
   nid = 0; // will be assigned by nengi, 0 is a placeholder
   ntype = NType.Entity;
   x = 0; // The raw x position of this entity
@@ -28,7 +28,7 @@ export class Entity implements Collidable {
   sy = 0; // The smoothed y position of this entity, for other clients to use visually and therfore the server to use for raycast checks
   positions: Position[] = []; // The historical positions for this entity used for path following
   type: CollidableType = "Entity";
-  collider: EntityBox;
+  collider: CustomBox;
 
   constructor(entity?: Entity) {
     if (entity) {
@@ -39,7 +39,7 @@ export class Entity implements Collidable {
       this.sx = entity.sx;
       this.sy = entity.sy;
     }
-    this.collider = new EntityBox(
+    this.collider = new CustomBox(
       { x: entity ? this.x : this.sx, y: entity ? this.y : this.sy },
       PLAYER_WIDTH,
       PLAYER_HEIGHT,

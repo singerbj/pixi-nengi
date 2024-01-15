@@ -19,6 +19,7 @@ import { followPath } from "./followPath";
 import Historian from "./historian/Historian";
 import lagCompensatedHitscanCheck from "./lagCompensatedHitscanCheck";
 import { ShotMessage } from "../common/ShotMessage";
+import { getMap } from "../common/MapService";
 
 // mocks hitting an external service to authenticate a user
 const authenticateUser = async (handshake: any) => {
@@ -66,7 +67,9 @@ const entitiesWithInput = new Map<number, boolean>();
 
 const historian = new Historian(TICK_RATE, HISTORIAN_TICKS, "nid");
 
-// TODO: Load level
+// load the map in the collision service
+const map = getMap();
+collisionService.registerMap(map);
 
 const update = (delta: number) => {
   entityInputs = [];
@@ -92,8 +95,9 @@ const update = (delta: number) => {
       collisionService.insert(entity.collider);
 
       // set random spawn position
-      entity.x = rand(-150, 150);
-      entity.y = rand(-150, 150);
+      // TODO: Improve this to be like, fair and stuff
+      entity.x = rand(-300, 300);
+      entity.y = rand(250, 400);
 
       entity.updateColliderFromPosition();
 

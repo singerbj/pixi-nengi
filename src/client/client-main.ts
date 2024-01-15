@@ -8,6 +8,8 @@ import { PIXIRenderer } from "../rendering/PIXIRenderer";
 import { State } from "./State";
 import { InputSystem } from "./InputSystem";
 import { predictInput } from "./predictInput";
+import { getMap } from "../common/MapService";
+import { collisionService } from "../common/CollisionService";
 
 /**
  * A basic nengi client example.
@@ -19,6 +21,11 @@ window.addEventListener("load", async () => {
   const state = new State();
   // a primitive pixi renderer
   const renderer = new PIXIRenderer(state);
+
+  // load the map in the collision service and the renderer
+  const map = getMap();
+  collisionService.registerMap(map);
+  renderer.renderMap(map);
 
   const client = new Client(ncontext, WebSocketClientAdapter, 20);
   const interpolator = new Interpolator(client);

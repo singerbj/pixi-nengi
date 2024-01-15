@@ -1,5 +1,6 @@
 import { System, Response } from "detect-collisions";
 import { Entity } from "./Entity";
+import { MapObject } from "./MapObject";
 
 class CollisionService {
   system = new System();
@@ -39,6 +40,12 @@ class CollisionService {
       );
       response.a.updateBody();
       entity.updatePositionFromCollider();
+    });
+  }
+
+  registerMap(mapObjects: MapObject[]) {
+    mapObjects.forEach((mapObject) => {
+      this.system.insert(mapObject.collider);
     });
   }
 }

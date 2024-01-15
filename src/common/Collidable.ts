@@ -1,7 +1,6 @@
 import { BodyOptions, Box, PotentialVector } from "detect-collisions";
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
 
-export const possibleCollideableTypes = ["Entity"] as const;
+export const possibleCollideableTypes = ["Entity", "MapObject"] as const;
 export type CollidableType = (typeof possibleCollideableTypes)[number];
 
 export const isCollidableType = (
@@ -19,28 +18,31 @@ export const isCollidableType = (
   }
 };
 
-export type EntityBoxCustomOptions = {
+export type CustomBoxCustomOptions = {
   type: CollidableType;
-  nid: number;
+  nid?: number;
 };
 
-export class EntityBox extends Box {
-  customOptions: EntityBoxCustomOptions | undefined;
+export class CustomBox extends Box {
+  customOptions: CustomBoxCustomOptions | undefined;
   constructor(
     position: PotentialVector,
     width: number,
     height: number,
     options?: BodyOptions | undefined,
-    customOptions?: EntityBoxCustomOptions
+    customOptions?: CustomBoxCustomOptions
   ) {
     super(position, width, height, options);
     this.customOptions = customOptions;
   }
 }
 
-export interface Collidable {
+export interface StaticCollidable {
   type: CollidableType;
-  collider: EntityBox;
+  collider: CustomBox;
+}
+
+export interface DynamicCollidable extends StaticCollidable {
   updateColliderFromPosition: () => void;
   updatePositionFromCollider: () => void;
 }
