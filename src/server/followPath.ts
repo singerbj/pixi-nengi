@@ -1,12 +1,15 @@
 // moves entity along path until out of movementBudget
 // movementBudget is a distance of how far we can move in a single frame
 
-import { ENTITY_SPEED, FOLLOW_BUDGET_FACTOR } from "../common/Constants";
+import {
+  ENTITY_SPEED_AND_GRAVITY,
+  FOLLOW_BUDGET_FACTOR,
+} from "../common/Constants";
 import { Entity } from "../common/Entity";
 import { calculateDistance } from "../common/Util";
 
 export const followPath = (entity: Entity, delta: number) => {
-  let budget = ENTITY_SPEED * FOLLOW_BUDGET_FACTOR * delta;
+  let budget = ENTITY_SPEED_AND_GRAVITY * FOLLOW_BUDGET_FACTOR * delta;
   while (budget > 0 && entity.positions.length > 0) {
     const position = entity.positions[0];
 

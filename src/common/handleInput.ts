@@ -1,36 +1,48 @@
 import { collisionService } from "./CollisionService";
-import { ENTITY_SPEED, GRAVITY } from "./Constants";
+import { ENTITY_SPEED_AND_GRAVITY, JUMP_TICKS } from "./Constants";
 import { Entity } from "./Entity";
 import { InputCommand } from "./InputCommand";
 import { ShotMessage } from "./ShotMessage";
 
-// const jumpTicksTracker = new Map<number, number>();
+const jumpTicksTracker = new Map<number, number>();
 
 export const handleInput = (
   entity: Entity,
   inputCommand: InputCommand
 ): [boolean, ShotMessage] => {
-  const { up, down, left, right, delta, shooting, mouseX, mouseY } =
-    inputCommand;
+  const { up, left, right, delta, shooting, mouseX, mouseY } = inputCommand;
 
   // Calculate the movement vector based on the input
-  const movementVector = {
-    x: (right ? 1 : 0) - (left ? 1 : 0),
-    y: (down ? 1 : 0) - (up ? 1 : 0),
-  };
+  const movementX = (right ? 1 : 0) - (left ? 1 : 0);
 
   // Normalize the movement vector
   const normalizedVector = {
-    x: movementVector.x !== 0 ? movementVector.x / Math.sqrt(2) : 0,
-    y: movementVector.y !== 0 ? movementVector.y / Math.sqrt(2) : 0,
+    x: movementX !== 0 ? movementX / Math.sqrt(2) : 0,
+    y: 0,
   };
 
-  // Apply the movement with the same speed
-  entity.x += ENTITY_SPEED * normalizedVector.x * delta;
-  entity.y += ENTITY_SPEED * normalizedVector.y * delta;
+  // set up the jump ticks tracker if we haven't already
+  let jumpTicks = jumpTicksTracker.get(entity.nid);
+  if (jumpTicks === undefined) {
+    jumpTicks = 0;
+    jumpTicksTracker.set(entity.nid, jumpTicks);
+  }
 
-  // gravity
-  entity.y += GRAVITY * delta;
+  // check if jump was just pressed and we aren't already jumping
+  if (up && jumpTicks === 0) {
+    jumpTicksTracker.set(entity.nid, JUMP_TICKS * 2);
+  }
+
+  if (jumpTicks > 0) {
+    normalizedVector.y = -((jumpTicks - JUMP_TICKS) / JUMP_TICKS);
+    jumpTicksTracker.set(entity.nid, jumpTicks - 1);
+  } else {
+    normalizedVector.y = 1;
+  }
+
+  // Apply the movement with the same speed
+  entity.x += ENTITY_SPEED_AND_GRAVITY * normalizedVector.x * delta;
+  entity.y += ENTITY_SPEED_AND_GRAVITY * normalizedVector.y * delta;
 
   collisionService.resolveCollisionsForEntity(entity);
 

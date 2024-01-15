@@ -130,7 +130,8 @@ export class PIXIRenderer {
   }
 
   renderShot(shotMessage: ShotMessage) {
-    const { originX, originY, targetX, targetY, hit, hitX, hitY } = shotMessage;
+    const { originX, originY, targetX, targetY, hit, hitX, hitY, hitEntityId } =
+      shotMessage;
 
     let line = new Graphics();
 
@@ -138,7 +139,7 @@ export class PIXIRenderer {
     if (hit) {
       hitPoint = new Graphics();
       hitPoint
-        .lineStyle(10, 0xff0000)
+        .lineStyle(10, hitEntityId !== 0 ? 0xff0000 : 0x0000ff)
         .moveTo(hitX - 4, hitY - 4)
         .lineTo(hitX + 4, hitY + 4);
 

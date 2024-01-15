@@ -5,6 +5,7 @@ import { PIXIRenderer } from "../rendering/PIXIRenderer";
 // we could make this editable with an api, but this is just quick and dirty
 const keybindingLayer = new Map();
 keybindingLayer.set("w", "up");
+keybindingLayer.set(" ", "up");
 keybindingLayer.set("a", "left");
 keybindingLayer.set("s", "down");
 keybindingLayer.set("d", "right");

@@ -11,5 +11,12 @@ export const getMap = (): MapObject[] => {
   const leftWall = new MapObject(-1000, -500, MAP_OBJECT_STANDARD_FACTOR, 1000);
   const rightWall = new MapObject(1000, -500, MAP_OBJECT_STANDARD_FACTOR, 1000);
   const ceiling = new MapObject(-1000, -500, 2000, MAP_OBJECT_STANDARD_FACTOR);
-  return [floor, leftWall, rightWall, ceiling];
+  const middleObstacle = new MapObject(
+    -MAP_OBJECT_STANDARD_FACTOR / 2,
+    400,
+    MAP_OBJECT_STANDARD_FACTOR,
+    100
+  );
+
+  return [floor, leftWall, rightWall, ceiling, middleObstacle];
 };

@@ -40,37 +40,41 @@ export default (
   );
 
   const allHits: RaycastHitWithVictim[] = [];
-  pastEntities.forEach((pastEntity: Entity) => {
-    //TODO: fix this somehow
-    //@ts-expect-error
-    const hit: RaycastHit<Body> | null = collisionService.system.raycast(
-      { x: originX, y: originY },
-      { x: newTargetX, y: newTargetY },
-      (body): boolean => {
-        //TODO: fix this somehow
-        //@ts-ignore
-        const nid = body.customOptions.nid;
-        return nid === undefined || !ignoreNids.includes(nid);
-      }
-    );
+  // pastEntities.forEach((pastEntity: Entity) => {
 
-    if (hit) {
-      allHits.push({
-        hit: hit,
-        victim: pastEntity,
-      });
+  //   if (hit) {
+  //     allHits.push({
+  //       hit: hit,
+  //       victim: pastEntity,
+  //     });
+  //   }
+  // });
+
+  console.log("===================================================");
+  //TODO: fix this somehow
+  //@ts-expect-error
+  const hit: RaycastHit<Body> | null = collisionService.system.raycast(
+    { x: originX, y: originY },
+    { x: newTargetX, y: newTargetY },
+    (body): boolean => {
+      //TODO: fix this somehow
+      //@ts-ignore
+      const nid = body.customOptions.nid;
+      return nid === undefined || !ignoreNids.includes(nid);
     }
-  });
+  );
 
-  if (allHits.length > 0) {
-    const closestHit = allHits
-      .filter((hit) => ignoreNids.includes(hit.victim.nid))
-      .sort(
-        (a, b) =>
-          calculateDistance(originX, b.hit.point.x, originY, b.hit.point.y)
-            .dist -
-          calculateDistance(originX, a.hit.point.x, originY, a.hit.point.y).dist
-      )[0];
+  if (hit !== null) {
+    // const closestHit = allHits
+    //   .filter((hit) => {
+    //     return !ignoreNids.includes(hit.victim.nid);
+    //   })
+    //   .sort(
+    //     (a, b) =>
+    //       calculateDistance(originX, b.hit.point.x, originY, b.hit.point.y)
+    //         .dist -
+    //       calculateDistance(originX, a.hit.point.x, originY, a.hit.point.y).dist
+    //   )[0];
 
     return new ShotMessage(
       shooterId,
@@ -79,9 +83,10 @@ export default (
       newTargetX,
       newTargetY,
       true,
-      closestHit.hit.point.x,
-      closestHit.hit.point.y,
-      closestHit.victim.nid
+      hit.point.x,
+      hit.point.y,
+      //@ts-ignore
+      hit.body.customOptions.nid || 0
     );
   } else {
     return new ShotMessage(
