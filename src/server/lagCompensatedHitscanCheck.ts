@@ -4,19 +4,10 @@
 
 import { RaycastHit } from "detect-collisions";
 import { collisionService } from "../common/CollisionService";
-import { Entity } from "../common/Entity";
 import { ShotMessage } from "../common/ShotMessage";
 import Historian from "./historian/Historian";
-import {
-  calculateDistance,
-  getNewPointOnLineWithDistance,
-} from "../common/Util";
+import { getNewPointOnLineWithDistance } from "../common/Util";
 import { SHOT_DISTANCE } from "../common/Constants";
-
-type RaycastHitWithVictim = {
-  hit: RaycastHit<Body>;
-  victim: Entity;
-};
 
 export default (
   historian: Historian,
@@ -38,19 +29,6 @@ export default (
     targetY,
     SHOT_DISTANCE
   );
-
-  const allHits: RaycastHitWithVictim[] = [];
-  // pastEntities.forEach((pastEntity: Entity) => {
-
-  //   if (hit) {
-  //     allHits.push({
-  //       hit: hit,
-  //       victim: pastEntity,
-  //     });
-  //   }
-  // });
-
-  console.log("===================================================");
   //TODO: fix this somehow
   //@ts-expect-error
   const hit: RaycastHit<Body> | null = collisionService.system.raycast(
@@ -65,17 +43,6 @@ export default (
   );
 
   if (hit !== null) {
-    // const closestHit = allHits
-    //   .filter((hit) => {
-    //     return !ignoreNids.includes(hit.victim.nid);
-    //   })
-    //   .sort(
-    //     (a, b) =>
-    //       calculateDistance(originX, b.hit.point.x, originY, b.hit.point.y)
-    //         .dist -
-    //       calculateDistance(originX, a.hit.point.x, originY, a.hit.point.y).dist
-    //   )[0];
-
     return new ShotMessage(
       shooterId,
       originX,
