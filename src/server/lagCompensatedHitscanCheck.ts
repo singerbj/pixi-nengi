@@ -50,7 +50,6 @@ export default (
   //   }
   // });
 
-  console.log("===================================================");
   //TODO: fix this somehow
   //@ts-expect-error
   const hit: RaycastHit<Body> | null = collisionService.system.raycast(
