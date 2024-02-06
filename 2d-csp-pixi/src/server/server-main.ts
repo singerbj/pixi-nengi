@@ -1,10 +1,11 @@
-import { Instance, NetworkEvent, AABB2D, Channel, User } from 'nengi'
+import { Instance, NetworkEvent, AABB2D, Channel, User, Historian } from 'nengi'
 import { NType, ncontext } from '../common/ncontext'
 import { uWebSocketsInstanceAdapter } from 'nengi-uws-instance-adapter'
 import { Entity } from '../common/Entity'
 import { IdentityMessage } from '../common/IdentityMessage'
 import { move } from '../common/move'
 import { StatsEntity } from '../common/StatsEntity'
+
 
 // mocks hitting an external service to authenticate a user
 const authenticateUser = async (handshake: any) => {
@@ -31,7 +32,10 @@ const uws = new uWebSocketsInstanceAdapter(instance.network, { /* uws config */ 
 uws.listen(port, () => { console.log(`uws adapter is listening on ${port}`) })
 instance.onConnect = authenticateUser
 
-const main = new Channel(instance.localState)
+
+const historian = new Historian(ncontext, 20)
+
+const main = new Channel(instance.localState, historian)
 
 const queue = instance.queue
 type MyUser = User & { entity: any, view: AABB2D } // view is currently not used
@@ -44,7 +48,7 @@ function spawnNewNPC() {
     npc.x = Math.random() * 500
     npc.y = Math.random() * 500
     npc.maxAge = 1 + (Math.random() * 3) // live for 10-20 seconds
-    npc.speed = Math.random() * 1000
+    npc.speed = Math.random() * 300
     main.addEntity(npc)
     npcs.set(npc.nid, npc)
 }
@@ -54,7 +58,7 @@ function removeNPC(npc: Entity) {
     main.removeEntity(npc)
 }
 
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 4; i++) {
     spawnNewNPC()
 }
 
@@ -138,4 +142,3 @@ setInterval(() => {
     stats.cpuMillisecondsPerTick = frametime // technically this is the previous frames' time by the time the client sees it
     //console.log('connected clients', instance.users.size, ' :: ', frametime, 'time', instance.localState._entities.size)
 }, 50)
-

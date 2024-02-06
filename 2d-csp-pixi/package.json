@@ -1,6 +1,6 @@
 {
     "name": "nengi-api-example",
-    "version": "2.0.0-alpha.160",
+    "version": "2.0.0-alpha.170",
     "description": "minmal examples of using nengi features with the nengi 2.0 api",
     "scripts": {
         "start": "concurrently \"npm run client\" \"npm run server\"",
@@ -20,8 +20,8 @@
     "license": "proprietary",
     "devDependencies": {
         "@types/jest": "^29.5.2",
-        "@typescript-eslint/eslint-plugin": "^5.59.8",
-        "@typescript-eslint/parser": "^5.59.8",
+        "@typescript-eslint/eslint-plugin": "^6.21.0",
+        "@typescript-eslint/parser": "^6.21.0",
         "concurrently": "^8.2.0",
         "eslint": "^8.42.0",
         "ts-jest": "^29.1.0",
@@ -33,9 +33,10 @@
         "webpack-dev-server": "^4.15.0"
     },
     "dependencies": {
-        "nengi": "^2.0.0-alpha.160",
-        "nengi-uws-instance-adapter": "^0.4.0",
+        "nengi": "^2.0.0-alpha.170",
+        "nengi-uws-instance-adapter": "^0.5.0",
         "nengi-websocket-client-adapter": "^0.7.0",
+        "nengi-ws-client-adapter": "^0.3.0",
         "pixi.js": "^7.2.4"
     }
 }
