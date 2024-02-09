@@ -4,13 +4,34 @@ import { MapObject } from "./MapObject";
 
 class CollisionService {
   system = new System();
+  ssystem = new System();
 
-  insert(body: any) {
-    this.system.insert(body);
+  insert(entity: Entity) {
+    this.system.insert(entity.collider);
+    this.ssystem.insert(entity.scollider);
   }
 
-  remove(body: any) {
-    this.system.remove(body);
+  remove(entity: Entity) {
+    this.system.remove(entity.collider);
+    this.ssystem.remove(entity.scollider);
+  }
+
+  getCopyOfSystem() {
+    const systemCopy = Object.assign(
+      Object.create(Object.getPrototypeOf(this.system)),
+      this.system
+    );
+    return systemCopy;
+    // return new System().fromJSON(this.system.toJSON());
+  }
+
+  getCopyOfSoftSystem() {
+    const ssystemCopy = Object.assign(
+      Object.create(Object.getPrototypeOf(this.ssystem)),
+      this.ssystem
+    );
+    return ssystemCopy;
+    // return new System().fromJSON(this.system.toJSON());
   }
 
   // resolveAllCollisions() {
@@ -46,6 +67,7 @@ class CollisionService {
   registerMap(mapObjects: MapObject[]) {
     mapObjects.forEach((mapObject) => {
       this.system.insert(mapObject.collider);
+      this.ssystem.insert(mapObject.collider);
     });
   }
 }

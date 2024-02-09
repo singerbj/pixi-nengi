@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 import { RaycastHit } from "detect-collisions";
-import { collisionService } from "../common/CollisionService";
 import { ShotMessage } from "../common/ShotMessage";
 import Historian from "./historian/Historian";
 import { getNewPointOnLineWithDistance } from "../common/Util";
@@ -19,7 +18,9 @@ export default (
   targetY: number,
   ignoreNids: number[] = []
 ): ShotMessage => {
-  const pastEntities = historian.getLagCompensatedArea(timeAgo);
+  // const pastEntities = historian.getLagCompensatedEntities(timeAgo);
+  const pastSystem =
+    historian.getLagCompensatedSpacialStructure(timeAgo)?.system;
 
   // Get the actual shot coordinates based on the shot distance and the user input
   const [newTargetX, newTargetY] = getNewPointOnLineWithDistance(
@@ -31,13 +32,14 @@ export default (
   );
   //TODO: fix this somehow
   //@ts-expect-error
-  const hit: RaycastHit<Body> | null = collisionService.system.raycast(
+  const hit: RaycastHit<Body> | null = pastSystem.raycast(
     { x: originX, y: originY },
     { x: newTargetX, y: newTargetY },
     (body): boolean => {
       //TODO: fix this somehow
       //@ts-ignore
       const nid = body.customOptions.nid;
+      // console.log(body);
       return nid === undefined || !ignoreNids.includes(nid);
     }
   );

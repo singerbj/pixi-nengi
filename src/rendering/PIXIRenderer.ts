@@ -86,13 +86,11 @@ export class PIXIRenderer {
   updateGraphicalEntity(entity: Entity) {
     const graphicalEntity = this.graphicalEntitites.get(entity.nid);
     if (graphicalEntity) {
-      // const isLocalPlayer = entity.nid === this.state.myId;
-      // if (isLocalPlayer) {
       graphicalEntity.x = entity.x;
       graphicalEntity.y = entity.y;
-      // } else {
-      //   graphicalEntity.updatePositionWithInterpolation(entity);
-      // }
+      // graphicalEntity.sGraphics.x = entity.sx;
+      // graphicalEntity.sGraphics.y = entity.sx;
+      // console.log(entity.x, entity.sx);
     }
   }
 

@@ -29,6 +29,7 @@ export class Entity implements DynamicCollidable {
   positions: Position[] = []; // The historical positions for this entity used for path following
   type: CollidableType = "Entity";
   collider: CustomBox;
+  scollider: CustomBox;
 
   constructor(entity?: Entity) {
     if (entity) {
@@ -39,8 +40,19 @@ export class Entity implements DynamicCollidable {
       this.sx = entity.sx;
       this.sy = entity.sy;
     }
+    console.log(entity, this);
     this.collider = new CustomBox(
-      { x: entity ? this.x : this.sx, y: entity ? this.y : this.sy },
+      { x: this.x, y: this.y },
+      PLAYER_WIDTH,
+      PLAYER_HEIGHT,
+      {},
+      {
+        type: this.type,
+        nid: this.nid,
+      }
+    );
+    this.scollider = new CustomBox(
+      { x: this.sx, y: this.sy },
       PLAYER_WIDTH,
       PLAYER_HEIGHT,
       {},
@@ -51,13 +63,26 @@ export class Entity implements DynamicCollidable {
     );
   }
 
+  updateColliderCustomOptions() {
+    if (this.collider.customOptions !== undefined) {
+      this.collider.customOptions.nid = this.nid;
+    }
+    if (this.scollider.customOptions !== undefined) {
+      this.scollider.customOptions.nid = this.nid;
+    }
+  }
+
   updateColliderFromPosition() {
     this.collider.setPosition(this.x, this.y);
     this.collider.updateBody();
+    this.scollider.setPosition(this.sx, this.sy);
+    this.scollider.updateBody();
   }
 
   updatePositionFromCollider() {
     this.x = this.collider.pos.x;
     this.y = this.collider.pos.y;
+    this.sx = this.scollider.pos.x;
+    this.sy = this.scollider.pos.y;
   }
 }

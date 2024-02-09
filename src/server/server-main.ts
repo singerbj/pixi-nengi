@@ -65,7 +65,7 @@ const entityUserMap = new Map<number, User>();
 let entityInputs: { entity: Entity; command: any; user: User | null }[] = [];
 const entitiesWithInput = new Map<number, boolean>();
 
-const historian = new Historian(TICK_RATE, HISTORIAN_TICKS, "nid");
+const historian = new Historian(TICK_RATE, HISTORIAN_TICKS);
 
 // load the map in the collision service
 const map = getMap();
@@ -83,7 +83,7 @@ const update = (delta: number) => {
       const entity = user.entity;
       entityMap.delete(entity.nid);
       entityUserMap.delete(entity.nid);
-      collisionService.remove(entity.collider);
+      collisionService.remove(entity);
       mainChannel.removeEntity(entity);
     }
 
@@ -92,7 +92,7 @@ const update = (delta: number) => {
       const user = networkEvent.user as MyUser;
       mainChannel.subscribe(user);
       const entity = new Entity();
-      collisionService.insert(entity.collider);
+      collisionService.insert(entity);
 
       // set random spawn position
       // TODO: Improve this to be like, fair and stuff
@@ -103,9 +103,9 @@ const update = (delta: number) => {
 
       user.entity = entity;
       mainChannel.addEntity(entity);
-      if (entity.collider.customOptions !== undefined) {
-        entity.collider.customOptions.nid = entity.nid;
-      }
+
+      entity.updateColliderCustomOptions();
+
       entityMap.set(entity.nid, entity);
       entityUserMap.set(entity.nid, user);
       user.queueMessage(new IdentityMessage(entity.nid));
@@ -161,7 +161,7 @@ const update = (delta: number) => {
           entity.nid,
           timeAgo,
           shotMessage.originX + PLAYER_WIDTH / 2,
-          shotMessage.originY + PLAYER_WIDTH / 2,
+          shotMessage.originY + PLAYER_HEIGHT / 2,
           shotMessage.targetX,
           shotMessage.targetY,
           [entity.nid]
@@ -188,17 +188,6 @@ const update = (delta: number) => {
     entities.push(entity);
   });
 
-  // // update all colliders based on entities' positions
-  // entityMap.forEach((entity: Entity) => {
-  //   entity.updateColliderFromPosition();
-  // });
-  // // resolve all collisions
-  // collisionService.resolveAllCollisions();
-  // // update all entity positions based on the seperated collider positions
-  // entityMap.forEach((entity: Entity) => {
-  //   entity.updatePositionFromCollider();
-  // });
-
   // stats compilation
   stats.entityCount = instance.localState._entities.size;
   stats.userCount = instance.users.size;
@@ -206,7 +195,12 @@ const update = (delta: number) => {
   // lagCompensatedHitscanCheck(historian, 500);
 
   // record state with historian
-  historian.record(instance.tick, entities, []);
+  historian.record(
+    instance.tick,
+    entities,
+    [],
+    collisionService.getCopyOfSoftSystem()
+  );
 
   instance.step();
 };

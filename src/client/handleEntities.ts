@@ -34,7 +34,8 @@ export function handleEntities(
         console.log("newEntity", entity);
         const newEntity = new Entity(entity);
         renderer.addEntity(newEntity);
-        collisionService.insert(newEntity.collider);
+        collisionService.insert(newEntity);
+        collisionService.insert(newEntity);
         state.entities.set(newEntity.nid, newEntity);
       }
       if (entity.ntype === NType.StatsEntity) {
@@ -93,7 +94,7 @@ export function handleEntities(
     snapshot.deleteEntities.forEach((nid: number) => {
       if (state.entities.has(nid)) {
         const entity = state.entities.get(nid)!;
-        collisionService.insert(entity.collider);
+        collisionService.insert(entity);
         renderer.removeEntity(entity);
       }
       state.entities.delete(nid);

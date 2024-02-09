@@ -3,7 +3,7 @@ import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
 
 export class GraphicalEntity extends Container {
   graphics: Graphics;
-  // serverPositionGraphics: Graphics;
+  // sGraphics: Graphics;
   // serverColliderGraphics: Graphics;
   nidText: Text;
   targetX: number = this.x;
@@ -11,6 +11,13 @@ export class GraphicalEntity extends Container {
 
   constructor() {
     super();
+
+    // this.sGraphics = new Graphics();
+    // this.sGraphics.beginFill(0x00ffff);
+    // this.sGraphics.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    // this.sGraphics.endFill();
+
+    // this.addChild(this.sGraphics);
 
     this.graphics = new Graphics();
     this.graphics.beginFill(0xff00ff);
