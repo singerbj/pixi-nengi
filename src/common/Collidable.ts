@@ -21,6 +21,7 @@ export const isCollidableType = (
 export type CustomBoxCustomOptions = {
   type: CollidableType;
   nid?: number;
+  soft?: boolean;
 };
 
 export class CustomBox extends Box {

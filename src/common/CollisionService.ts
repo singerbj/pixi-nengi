@@ -17,21 +17,19 @@ class CollisionService {
   }
 
   getCopyOfSystem() {
-    const systemCopy = Object.assign(
-      Object.create(Object.getPrototypeOf(this.system)),
-      this.system
-    );
-    return systemCopy;
-    // return new System().fromJSON(this.system.toJSON());
+    // return Object.assign(
+    //   Object.create(Object.getPrototypeOf(this.system)),
+    //   this.system
+    // );
+    return new System().fromJSON(this.system.toJSON());
   }
 
   getCopyOfSoftSystem() {
-    const ssystemCopy = Object.assign(
-      Object.create(Object.getPrototypeOf(this.ssystem)),
-      this.ssystem
-    );
-    return ssystemCopy;
-    // return new System().fromJSON(this.system.toJSON());
+    // return Object.assign(
+    //   Object.create(Object.getPrototypeOf(this.ssystem)),
+    //   this.ssystem
+    // );
+    return new System().fromJSON(this.ssystem.toJSON());
   }
 
   // resolveAllCollisions() {
@@ -67,7 +65,7 @@ class CollisionService {
   registerMap(mapObjects: MapObject[]) {
     mapObjects.forEach((mapObject) => {
       this.system.insert(mapObject.collider);
-      this.ssystem.insert(mapObject.collider);
+      this.ssystem.insert(mapObject.scollider);
     });
   }
 }

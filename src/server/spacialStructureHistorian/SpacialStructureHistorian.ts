@@ -1,16 +1,17 @@
 // import SpatialStructure from "./BasicSpace";
 // import { proxify, Proxy } from "./proxify";
-import { System } from "detect-collisions";
+import { RBush, Body, System } from "detect-collisions";
 import { Entity } from "../../common/Entity";
 import { NetworkEvent } from "nengi";
 
 type SpatialStructure = {
-  entities: Entity[];
-  events: NetworkEvent[];
-  system: System;
+  // entities: Entity[];
+  // events: NetworkEvent[];
+  system: RBush<Body>;
+  ssystem: RBush<Body>;
 };
 
-class Historian {
+class SpacialStructureHistorian {
   history: { [tick: number]: SpatialStructure };
   ticksToSave: number;
   tick: number;
@@ -27,11 +28,16 @@ class Historian {
     if (this.history[tick]) {
       return this.history[tick];
     } else {
+      console.error(
+        "Unable to get historical spacial structure at tick: ",
+        tick
+      );
       return null;
     }
   }
 
   getOldestSnapshot() {
+    console.log(this.ticksToSave, Object.keys(this.history));
     return this.getSnapshot(this.tick - this.ticksToSave + 1);
   }
 
@@ -41,24 +47,26 @@ class Historian {
 
   record(
     tick: number,
-    entities: Entity[],
-    events: NetworkEvent[],
-    systemCopy: System
+    // entities: Entity[],
+    // events: NetworkEvent[],
+    systemCopy: RBush<Body>,
+    ssystemCopy: RBush<Body>
   ) {
     const spatialStructure: SpatialStructure = {
-      entities: [],
-      events: [],
+      // entities: [],
+      // events: [],
       system: systemCopy,
+      ssystem: ssystemCopy,
     };
-    for (let i = 0; i < entities.length; i++) {
-      const entity = entities[i];
-      spatialStructure.entities.push(entity);
-    }
+    // for (let i = 0; i < entities.length; i++) {
+    //   const entity = entities[i];
+    //   spatialStructure.entities.push(entity);
+    // }
 
-    for (let i = 0; i < events.length; i++) {
-      const event = events[i];
-      spatialStructure.events.push(event);
-    }
+    // for (let i = 0; i < events.length; i++) {
+    //   const event = events[i];
+    //   spatialStructure.events.push(event);
+    // }
 
     this.history[tick] = spatialStructure;
 
@@ -73,8 +81,8 @@ class Historian {
   }
 
   getLagCompensatedSpacialStructure(timeAgo: number): SpatialStructure | null {
-    const tickLengthMs = 1000 / this.tickRate;
-    const ticksAgo = timeAgo / tickLengthMs;
+    // const tickLengthMs = 1000 / this.tickRate;
+    const ticksAgo = timeAgo / this.tickRate;
 
     const olderTick = this.tick - Math.floor(ticksAgo);
     const newerTick = this.tick - Math.floor(ticksAgo) + 1;
@@ -86,12 +94,12 @@ class Historian {
     let compensatedSpatialStructure: SpatialStructure | null;
 
     if (timesliceA && timesliceB) {
+      // TODO: consider getting data between each point
       compensatedSpatialStructure = timesliceA;
     } else {
+      console.error("Getting oldest snapshot...");
       compensatedSpatialStructure = this.getOldestSnapshot();
     }
-
-    compensatedSpatialStructure?.system;
 
     return compensatedSpatialStructure;
   }
@@ -109,4 +117,4 @@ class Historian {
   // }
 }
 
-export default Historian;
+export default SpacialStructureHistorian;

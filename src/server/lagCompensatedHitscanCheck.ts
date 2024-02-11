@@ -4,12 +4,12 @@
 
 import { RaycastHit } from "detect-collisions";
 import { ShotMessage } from "../common/ShotMessage";
-import Historian from "./historian/Historian";
+import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
 import { getNewPointOnLineWithDistance } from "../common/Util";
 import { SHOT_DISTANCE } from "../common/Constants";
 
 export default (
-  historian: Historian,
+  historian: SpacialStructureHistorian,
   shooterId: number,
   timeAgo: number,
   originX: number,
@@ -19,8 +19,11 @@ export default (
   ignoreNids: number[] = []
 ): ShotMessage => {
   // const pastEntities = historian.getLagCompensatedEntities(timeAgo);
-  const pastSystem =
-    historian.getLagCompensatedSpacialStructure(timeAgo)?.system;
+  const pastSpacialStructure =
+    historian.getLagCompensatedSpacialStructure(timeAgo);
+
+  // use the smoothed system for calculations because thats what players are shooting at
+  const pastSystem = pastSpacialStructure?.ssystem;
 
   // Get the actual shot coordinates based on the shot distance and the user input
   const [newTargetX, newTargetY] = getNewPointOnLineWithDistance(
@@ -35,7 +38,7 @@ export default (
   const hit: RaycastHit<Body> | null = pastSystem.raycast(
     { x: originX, y: originY },
     { x: newTargetX, y: newTargetY },
-    (body): boolean => {
+    (body: any): boolean => {
       //TODO: fix this somehow
       //@ts-ignore
       const nid = body.customOptions.nid;
@@ -45,6 +48,9 @@ export default (
   );
 
   if (hit !== null) {
+    // TODO: fix this
+    //@ts-ignore
+    // console.log(hit.body.customOptions.nid, hit.body.customOptions.soft);
     return new ShotMessage(
       shooterId,
       originX,
@@ -54,6 +60,7 @@ export default (
       true,
       hit.point.x,
       hit.point.y,
+      // TODO: fix this
       //@ts-ignore
       hit.body.customOptions.nid || 0
     );

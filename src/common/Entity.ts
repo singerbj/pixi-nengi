@@ -49,6 +49,7 @@ export class Entity implements DynamicCollidable {
       {
         type: this.type,
         nid: this.nid,
+        soft: false,
       }
     );
     this.scollider = new CustomBox(
@@ -59,6 +60,7 @@ export class Entity implements DynamicCollidable {
       {
         type: this.type,
         nid: this.nid,
+        soft: true,
       }
     );
   }

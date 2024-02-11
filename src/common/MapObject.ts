@@ -8,6 +8,7 @@ export class MapObject implements StaticCollidable {
   height: number;
   type: CollidableType = "MapObject";
   collider: CustomBox;
+  scollider: CustomBox;
 
   constructor(x: number, y: number, width: number, height: number) {
     // const width = widthTiles * MAP_OBJECT_STANDARD_FACTOR;
@@ -18,6 +19,17 @@ export class MapObject implements StaticCollidable {
     this.width = width;
     this.height = height;
     this.collider = new CustomBox(
+      { x, y },
+      width,
+      height,
+      {
+        isStatic: true,
+      },
+      {
+        type: this.type,
+      }
+    );
+    this.scollider = new CustomBox(
       { x, y },
       width,
       height,

@@ -59,14 +59,12 @@ export function handleEntities(
         }
         if (entity.ntype === NType.Entity) {
           if (prop === "sx") {
-            // @ts-ignore
-            entity.x = value;
+            (<Entity>entity).x = value;
             const collider = (<Entity>entity).collider;
             collider.setPosition(value, collider.y);
             entitiesThatNeedColliderUpdate.set(entity.nid, true);
           } else if (prop === "sy") {
-            // @ts-ignore
-            entity.y = value;
+            (<Entity>entity).y = value;
             const collider = (<Entity>entity).collider;
             collider.setPosition(collider.x, value);
             entitiesThatNeedColliderUpdate.set(entity.nid, true);

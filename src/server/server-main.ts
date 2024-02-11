@@ -16,7 +16,7 @@ import {
 } from "../common/Constants";
 import { InputCommand } from "../common/InputCommand";
 import { followPath } from "./followPath";
-import Historian from "./historian/Historian";
+import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
 import lagCompensatedHitscanCheck from "./lagCompensatedHitscanCheck";
 import { ShotMessage } from "../common/ShotMessage";
 import { getMap } from "../common/MapService";
@@ -65,7 +65,7 @@ const entityUserMap = new Map<number, User>();
 let entityInputs: { entity: Entity; command: any; user: User | null }[] = [];
 const entitiesWithInput = new Map<number, boolean>();
 
-const historian = new Historian(TICK_RATE, HISTORIAN_TICKS);
+const historian = new SpacialStructureHistorian(TICK_RATE, HISTORIAN_TICKS);
 
 // load the map in the collision service
 const map = getMap();
@@ -180,25 +180,26 @@ const update = (delta: number) => {
     });
   });
 
-  // save the final list of entities for the historian
-  const entities: Entity[] = [];
+  // TODO: or don't? save the final list of entities for the historian
+  // const entities: Entity[] = [];
   entityMap.forEach((entity) => {
+    // save the raw position so that we can create the smooth ones
     entity.positions.push({ x: entity.x, y: entity.y });
+    // create the smooth ones
     followPath(entity, delta);
-    entities.push(entity);
+    // entities.push(entity);
   });
 
   // stats compilation
   stats.entityCount = instance.localState._entities.size;
   stats.userCount = instance.users.size;
 
-  // lagCompensatedHitscanCheck(historian, 500);
-
   // record state with historian
   historian.record(
     instance.tick,
-    entities,
-    [],
+    // entities,
+    // [],
+    collisionService.getCopyOfSystem(),
     collisionService.getCopyOfSoftSystem()
   );
 
@@ -207,7 +208,6 @@ const update = (delta: number) => {
 
 let prev = performance.now();
 const loop = () => {
-  setTimeout(loop, TICK_RATE);
   const start = performance.now();
   const deltaMs = start - prev;
   prev = start;
@@ -234,5 +234,14 @@ const loop = () => {
   //     instance.localState._entities.size
   //   );
   // }
+  if (frametime < TICK_RATE) {
+    setTimeout(loop, TICK_RATE - frametime);
+  } else {
+    setTimeout(loop, 0);
+    console.error(
+      "Warning! Frame time longer than tick rate! Frametime: ",
+      frametime
+    );
+  }
 };
 loop();

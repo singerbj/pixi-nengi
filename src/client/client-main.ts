@@ -52,7 +52,7 @@ window.addEventListener("load", async () => {
       handleMessages(renderer, client, state);
       handleEntities(interpolator, state, renderer);
 
-      const inputCommand = inputSystem.createNetworkCommand(delta);
+      const inputCommand = inputSystem.createNetworkCommand(delta, now);
       client.addCommand(inputCommand);
       predictInput(delta, renderer, state, inputCommand, client);
       client.flush();

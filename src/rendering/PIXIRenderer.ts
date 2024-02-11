@@ -91,6 +91,16 @@ export class PIXIRenderer {
       // graphicalEntity.sGraphics.x = entity.sx;
       // graphicalEntity.sGraphics.y = entity.sx;
       // console.log(entity.x, entity.sx);
+
+      // const tempBox = new Graphics();
+      // tempBox.lineStyle(1, 0xff00ff); //(thickness, color)
+      // tempBox.drawRect(entity.sx, entity.sx, PLAYER_WIDTH, PLAYER_HEIGHT);
+      // tempBox.endFill();
+      // this.camera.addChild(tempBox);
+
+      // setTimeout(() => {
+      //   tempBox.destroy();
+      // }, 500);
     }
   }
 

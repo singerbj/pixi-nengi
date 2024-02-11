@@ -121,7 +121,7 @@ export class InputSystem {
     }
   }
 
-  createNetworkCommand(delta: number): InputCommand {
+  createNetworkCommand(delta: number, _time: number): InputCommand {
     const inputCommand = new InputCommand(delta);
     if (this.lastFederatedPointerEvent) {
       this.setMousePosition(this.lastFederatedPointerEvent);
