@@ -1,4 +1,11 @@
-import { Instance, NetworkEvent, AABB2D, Channel, User } from "nengi";
+import {
+  Instance,
+  NetworkEvent,
+  AABB2D,
+  Channel,
+  User,
+  Historian,
+} from "nengi";
 import { NType, ncontext } from "../common/ncontext";
 import { uWebSocketsInstanceAdapter } from "nengi-uws-instance-adapter";
 import { Entity } from "../common/Entity";
@@ -16,7 +23,6 @@ import {
 } from "../common/Constants";
 import { InputCommand } from "../common/InputCommand";
 import { followPath } from "./followPath";
-import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
 import { lagCompensatedHitscanCheck } from "./lagCompensatedHitscanCheck";
 import { ShotMessage } from "../common/ShotMessage";
 import { getMap } from "../common/MapService";
@@ -51,7 +57,8 @@ uws.listen(port, () => {
 });
 instance.onConnect = authenticateUser;
 
-const mainChannel = new Channel(instance.localState);
+const historian = new Historian(ncontext, 1000 / TICK_RATE, HISTORIAN_TICKS);
+const mainChannel = new Channel(instance.localState, historian);
 
 const queue = instance.queue;
 type MyUser = User & { entity: any; view: AABB2D }; // view is currently not used
@@ -64,8 +71,6 @@ const entityUserMap = new Map<number, User>();
 
 let entityInputs: { entity: Entity; command: any; user: User | null }[] = [];
 const entitiesWithInput = new Map<number, boolean>();
-
-const historian = new SpacialStructureHistorian(TICK_RATE, HISTORIAN_TICKS);
 
 // load the map in the collision service
 const map = getMap();
@@ -154,8 +159,7 @@ const update = (delta: number) => {
   entityInputs.forEach(({ entity, command, user }) => {
     const [shooting, shotMessage] = handleInput(entity, command);
     if (user !== null && shooting) {
-      const timeAgo =
-        performance.now() - command.time + user.latency + INTERPOLATION_DELAY;
+      const timeAgo = INTERPOLATION_DELAY - user.latency; // Pretty sure this is correct after like wayyyy to much testing
       shotReports = shotReports.concat(
         lagCompensatedHitscanCheck(
           historian,
@@ -195,14 +199,14 @@ const update = (delta: number) => {
   stats.entityCount = instance.localState._entities.size;
   stats.userCount = instance.users.size;
 
-  // record state with historian
-  historian.record(
-    instance.tick,
-    // entities,
-    // [],
-    collisionService.getCopyOfSystem(),
-    collisionService.getCopyOfSoftSystem()
-  );
+  // record state with custom historian
+  // historian.record(
+  //   instance.tick,
+  //   // entities,
+  //   // [],
+  //   collisionService.getCopyOfSystem(),
+  //   collisionService.getCopyOfSoftSystem()
+  // );
 
   instance.step();
 };

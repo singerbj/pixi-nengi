@@ -18,28 +18,26 @@ export const isCollidableType = (
   }
 };
 
-export type CustomBoxCustomOptions = {
-  type: CollidableType;
-  nid?: number;
-  soft?: boolean;
-};
-
 export class CustomBox extends Box {
-  customOptions: CustomBoxCustomOptions | undefined;
+  collidableType: CollidableType;
+  nid?: number;
+
   constructor(
     position: PotentialVector,
     width: number,
     height: number,
+    collidableType: CollidableType,
     options?: BodyOptions | undefined,
-    customOptions?: CustomBoxCustomOptions
+    nid?: number
   ) {
     super(position, width, height, options);
-    this.customOptions = customOptions;
+    this.collidableType = collidableType;
+    this.nid = nid;
   }
 }
 
 export interface StaticCollidable {
-  type: CollidableType;
+  collidableType: CollidableType;
   collider: CustomBox;
 }
 

@@ -1,14 +1,17 @@
 import { StaticCollidable, CollidableType, CustomBox } from "./Collidable";
-import { MAP_OBJECT_STANDARD_FACTOR } from "../common/Constants";
+// import { MAP_OBJECT_STANDARD_FACTOR } from "../common/Constants";
 
 export class MapObject implements StaticCollidable {
   x: number;
   y: number;
   width: number;
   height: number;
-  type: CollidableType = "MapObject";
+  collidableType: CollidableType = "MapObject";
   collider: CustomBox;
   scollider: CustomBox;
+  colliderOptions = {
+    isStatic: true,
+  };
 
   constructor(x: number, y: number, width: number, height: number) {
     // const width = widthTiles * MAP_OBJECT_STANDARD_FACTOR;
@@ -22,23 +25,15 @@ export class MapObject implements StaticCollidable {
       { x, y },
       width,
       height,
-      {
-        isStatic: true,
-      },
-      {
-        type: this.type,
-      }
+      "MapObject",
+      this.colliderOptions
     );
     this.scollider = new CustomBox(
       { x, y },
       width,
       height,
-      {
-        isStatic: true,
-      },
-      {
-        type: this.type,
-      }
+      "MapObject",
+      this.colliderOptions
     );
   }
 }

@@ -29,7 +29,6 @@ export class InputCommand {
   time: number;
 
   constructor(delta: number) {
-    //}, time: number) {
     this.delta = delta;
     this.time = performance.now();
   }

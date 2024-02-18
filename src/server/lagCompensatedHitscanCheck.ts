@@ -2,14 +2,16 @@
 // TODO: the historian is not yet implemented yet for nengi 2. might have to wait for that
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-import { RaycastHit } from "detect-collisions";
+import { RaycastHit, System } from "detect-collisions";
 import { ShotMessage } from "../common/ShotMessage";
-import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
+// import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
 import { getNewPointOnLineWithDistance } from "../common/Util";
 import { SHOT_DISTANCE } from "../common/Constants";
+import { Historian } from "nengi";
+import { collisionService } from "../common/CollisionService";
 
 export const lagCompensatedHitscanCheck = (
-  historian: SpacialStructureHistorian,
+  historian: Historian,
   shooterId: number,
   timeAgo: number,
   originX: number,
@@ -18,16 +20,16 @@ export const lagCompensatedHitscanCheck = (
   targetY: number,
   ignoreNids: number[] = []
 ): ShotMessage => {
-  // const pastEntities = historian.getLagCompensatedEntities(timeAgo);
-  const pastSpacialStructure =
-    historian.getLagCompensatedSpacialStructure(timeAgo);
+  // // const pastEntities = historian.getLagCompensatedEntities(timeAgo);
+  // const pastSpacialStructure =
+  //   historian.getLagCompensatedSpacialStructure(timeAgo);
 
-  // use the smoothed system for calculations because thats what players are shooting at
-  const pastSystem = pastSpacialStructure?.ssystem;
+  // // use the smoothed system for calculations because thats what players are shooting at
+  // const pastSystem = pastSpacialStructure?.ssystem;
 
-  const latestSpacialStructure =
-    historian.getLagCompensatedSpacialStructure(100);
-  const latestSystem = latestSpacialStructure?.ssystem;
+  // const latestSpacialStructure =
+  //   historian.getLagCompensatedSpacialStructure(100);
+  // const latestSystem = latestSpacialStructure?.ssystem;
 
   // Get the actual shot coordinates based on the shot distance and the user input
   const [newTargetX, newTargetY] = getNewPointOnLineWithDistance(
@@ -38,16 +40,20 @@ export const lagCompensatedHitscanCheck = (
     SHOT_DISTANCE
   );
 
-  if (pastSystem) {
+  const pastEntityState = historian.getFastLagCompensatedState(timeAgo);
+  if (pastEntityState) {
+    const historicalSystem =
+      collisionService.getHistoricalSystem(pastEntityState);
+
     //TODO: fix this somehow
     //@ts-expect-error
-    const hit: RaycastHit<Body> | null = pastSystem.raycast(
+    const hit: RaycastHit<Body> | null = historicalSystem.raycast(
       { x: originX, y: originY },
       { x: newTargetX, y: newTargetY },
       (body: any): boolean => {
         //TODO: fix this somehow
         //@ts-ignore
-        const nid = body.customOptions.nid;
+        const nid = body.nid;
         // console.log(body);
         return nid === undefined || !ignoreNids.includes(nid);
       }
@@ -68,7 +74,7 @@ export const lagCompensatedHitscanCheck = (
         hit.point.y,
         // TODO: fix this
         //@ts-ignore
-        hit.body.customOptions.nid || 0
+        hit.body.nid || 0
       );
     } else {
       return new ShotMessage(

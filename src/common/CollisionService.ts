@@ -1,6 +1,10 @@
 import { System, Response } from "detect-collisions";
 import { Entity } from "./Entity";
 import { MapObject } from "./MapObject";
+import { CustomBox } from "./Collidable";
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Constants";
+import { getMap } from "./MapService";
+import { HistorySnapshot, IEntity } from "nengi";
 
 class CollisionService {
   system = new System();
@@ -16,27 +20,53 @@ class CollisionService {
     this.ssystem.remove(entity.scollider);
   }
 
-  getCopyOfSystem() {
-    // return Object.assign(
-    //   Object.create(Object.getPrototypeOf(this.system)),
-    //   this.system
-    // );
-    return new System().fromJSON(this.system.toJSON());
-    // return structuredClone(this.system);
-    // return new System().fromJSON(structuredClone(this.system.toJSON()));
-    // return this.system.toJSON();
+  getHistoricalSystem(pastEntityState: HistorySnapshot): System {
+    const historicalSystem = new System();
+    pastEntityState.forEach((entity: IEntity) => {
+      historicalSystem.insert(
+        new CustomBox(
+          { x: entity.sx, y: entity.sy },
+          PLAYER_WIDTH,
+          PLAYER_HEIGHT,
+          "Entity", //TODO: find a better way of referencing this stuff
+          undefined,
+          entity.nid
+        )
+      );
+    });
+    getMap().forEach((mapObject: MapObject) =>
+      historicalSystem.insert(
+        new CustomBox(
+          { x: mapObject.x, y: mapObject.y },
+          mapObject.width,
+          mapObject.height,
+          mapObject.collidableType,
+          mapObject.colliderOptions
+        )
+      )
+    );
+    return historicalSystem;
   }
 
-  getCopyOfSoftSystem() {
-    // return Object.assign(
-    //   Object.create(Object.getPrototypeOf(this.ssystem)),
-    //   this.ssystem
-    // );
-    return new System().fromJSON(this.ssystem.toJSON());
-    // return structuredClone(this.ssystem);
-    // return new System().fromJSON(structuredClone(this.ssystem.toJSON()));
-    // return this.ssystem.toJSON();
-  }
+  // cloneSystem(system: System) {
+  //   const clone = Object.assign(
+  //     Object.create(Object.getPrototypeOf(system)),
+  //     system
+  //   );
+  //   // return new System().fromJSON(this.system.toJSON());
+  //   // return structuredClone(this.system);
+  //   // return new System().fromJSON(structuredClone(this.system.toJSON()));
+  //   // return this.system.toJSON();
+  //   return clone;
+  // }
+
+  // getCopyOfSystem() {
+  //   return this.cloneSystem(this.system);
+  // }
+
+  // getCopyOfSoftSystem() {
+  //   return this.cloneSystem(this.ssystem);
+  // }
 
   // resolveAllCollisions() {
   //   this.system.checkAll((response: Response) => {

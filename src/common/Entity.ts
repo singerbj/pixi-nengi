@@ -27,7 +27,7 @@ export class Entity implements DynamicCollidable {
   sx = 0; // The smoothed x position of this entity, for other clients to use visually and therfore the server to use for raycast checks
   sy = 0; // The smoothed y position of this entity, for other clients to use visually and therfore the server to use for raycast checks
   positions: Position[] = []; // The historical positions for this entity used for path following
-  type: CollidableType = "Entity";
+  collidableType: CollidableType = "Entity";
   collider: CustomBox;
   scollider: CustomBox;
 
@@ -40,37 +40,30 @@ export class Entity implements DynamicCollidable {
       this.sx = entity.sx;
       this.sy = entity.sy;
     }
-    console.log(entity, this);
     this.collider = new CustomBox(
       { x: this.x, y: this.y },
       PLAYER_WIDTH,
       PLAYER_HEIGHT,
+      this.collidableType,
       {},
-      {
-        type: this.type,
-        nid: this.nid,
-        soft: false,
-      }
+      this.nid
     );
     this.scollider = new CustomBox(
       { x: this.sx, y: this.sy },
       PLAYER_WIDTH,
       PLAYER_HEIGHT,
+      this.collidableType,
       {},
-      {
-        type: this.type,
-        nid: this.nid,
-        soft: true,
-      }
+      this.nid
     );
   }
 
   updateColliderCustomOptions() {
-    if (this.collider.customOptions !== undefined) {
-      this.collider.customOptions.nid = this.nid;
+    if (this.collider.nid === undefined) {
+      this.collider.nid = this.nid;
     }
-    if (this.scollider.customOptions !== undefined) {
-      this.scollider.customOptions.nid = this.nid;
+    if (this.scollider.nid === undefined) {
+      this.scollider.nid = this.nid;
     }
   }
 
