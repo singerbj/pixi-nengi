@@ -52,10 +52,12 @@ window.addEventListener("load", async () => {
       handleMessages(renderer, client, state);
       handleEntities(interpolator, state, renderer);
 
-      const inputCommand = inputSystem.createNetworkCommand(delta);
-      client.addCommand(inputCommand);
-      predictInput(delta, renderer, state, inputCommand, client);
-      client.flush();
+      if (window.document.hasFocus()) {
+        const inputCommand = inputSystem.createNetworkCommand(delta);
+        client.addCommand(inputCommand);
+        predictInput(delta, renderer, state, inputCommand, client);
+        client.flush();
+      }
 
       // after we did everything, render all the entities
       state.entities.forEach((entity) => {

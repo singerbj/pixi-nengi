@@ -8,5 +8,5 @@ export const ENTITY_SPEED_AND_GRAVITY = 300;
 export const FOLLOW_BUDGET_FACTOR = 1.1;
 export const HISTORIAN_TICKS = 500;
 export const SHOT_DISTANCE = 1000;
-export const MAP_OBJECT_STANDARD_FACTOR = 20;
+export const MAP_OBJECT_STANDARD_FACTOR = 50;
 export const JUMP_TICKS = 100;
