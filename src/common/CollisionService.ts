@@ -22,6 +22,9 @@ class CollisionService {
     //   this.system
     // );
     return new System().fromJSON(this.system.toJSON());
+    // return structuredClone(this.system);
+    // return new System().fromJSON(structuredClone(this.system.toJSON()));
+    // return this.system.toJSON();
   }
 
   getCopyOfSoftSystem() {
@@ -30,6 +33,9 @@ class CollisionService {
     //   this.ssystem
     // );
     return new System().fromJSON(this.ssystem.toJSON());
+    // return structuredClone(this.ssystem);
+    // return new System().fromJSON(structuredClone(this.ssystem.toJSON()));
+    // return this.ssystem.toJSON();
   }
 
   // resolveAllCollisions() {

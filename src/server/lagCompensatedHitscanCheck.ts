@@ -8,7 +8,7 @@ import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStruct
 import { getNewPointOnLineWithDistance } from "../common/Util";
 import { SHOT_DISTANCE } from "../common/Constants";
 
-export default (
+export const lagCompensatedHitscanCheck = (
   historian: SpacialStructureHistorian,
   shooterId: number,
   timeAgo: number,
@@ -25,6 +25,10 @@ export default (
   // use the smoothed system for calculations because thats what players are shooting at
   const pastSystem = pastSpacialStructure?.ssystem;
 
+  const latestSpacialStructure =
+    historian.getLagCompensatedSpacialStructure(100);
+  const latestSystem = latestSpacialStructure?.ssystem;
+
   // Get the actual shot coordinates based on the shot distance and the user input
   const [newTargetX, newTargetY] = getNewPointOnLineWithDistance(
     originX,
@@ -33,38 +37,54 @@ export default (
     targetY,
     SHOT_DISTANCE
   );
-  //TODO: fix this somehow
-  //@ts-expect-error
-  const hit: RaycastHit<Body> | null = pastSystem.raycast(
-    { x: originX, y: originY },
-    { x: newTargetX, y: newTargetY },
-    (body: any): boolean => {
-      //TODO: fix this somehow
-      //@ts-ignore
-      const nid = body.customOptions.nid;
-      // console.log(body);
-      return nid === undefined || !ignoreNids.includes(nid);
-    }
-  );
 
-  if (hit !== null) {
-    // TODO: fix this
-    //@ts-ignore
-    // console.log(hit.body.customOptions.nid, hit.body.customOptions.soft);
-    return new ShotMessage(
-      shooterId,
-      originX,
-      originY,
-      newTargetX,
-      newTargetY,
-      true,
-      hit.point.x,
-      hit.point.y,
+  if (pastSystem) {
+    //TODO: fix this somehow
+    //@ts-expect-error
+    const hit: RaycastHit<Body> | null = pastSystem.raycast(
+      { x: originX, y: originY },
+      { x: newTargetX, y: newTargetY },
+      (body: any): boolean => {
+        //TODO: fix this somehow
+        //@ts-ignore
+        const nid = body.customOptions.nid;
+        // console.log(body);
+        return nid === undefined || !ignoreNids.includes(nid);
+      }
+    );
+
+    if (hit !== null) {
       // TODO: fix this
       //@ts-ignore
-      hit.body.customOptions.nid || 0
-    );
+      // console.log(hit.body.customOptions.nid, hit.body.customOptions.soft);
+      return new ShotMessage(
+        shooterId,
+        originX,
+        originY,
+        newTargetX,
+        newTargetY,
+        true,
+        hit.point.x,
+        hit.point.y,
+        // TODO: fix this
+        //@ts-ignore
+        hit.body.customOptions.nid || 0
+      );
+    } else {
+      return new ShotMessage(
+        shooterId,
+        originX,
+        originY,
+        newTargetX,
+        newTargetY,
+        false,
+        0,
+        0,
+        0
+      );
+    }
   } else {
+    console.error("Not enough historical frames to do hit detection!");
     return new ShotMessage(
       shooterId,
       originX,

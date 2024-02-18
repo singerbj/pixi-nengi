@@ -10,7 +10,7 @@ export const inputSchema = defineSchema({
   mouseX: Binary.Float64,
   mouseY: Binary.Float64,
   delta: Binary.Float64,
-  // time: Binary.Float64,
+  time: Binary.Float64,
 });
 
 /**
@@ -26,11 +26,11 @@ export class InputCommand {
   mouseX = 0;
   mouseY = 0;
   delta: number;
-  // time: number;
+  time: number;
 
   constructor(delta: number) {
     //}, time: number) {
     this.delta = delta;
-    // this.time = time;
+    this.time = performance.now();
   }
 }

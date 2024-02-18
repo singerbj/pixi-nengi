@@ -83,6 +83,7 @@ class SpacialStructureHistorian {
   getLagCompensatedSpacialStructure(timeAgo: number): SpatialStructure | null {
     // const tickLengthMs = 1000 / this.tickRate;
     const ticksAgo = timeAgo / this.tickRate;
+    console.log("ticksAgo = ", ticksAgo);
 
     const olderTick = this.tick - Math.floor(ticksAgo);
     const newerTick = this.tick - Math.floor(ticksAgo) + 1;

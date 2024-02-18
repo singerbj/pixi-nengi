@@ -17,7 +17,7 @@ import {
 import { InputCommand } from "../common/InputCommand";
 import { followPath } from "./followPath";
 import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
-import lagCompensatedHitscanCheck from "./lagCompensatedHitscanCheck";
+import { lagCompensatedHitscanCheck } from "./lagCompensatedHitscanCheck";
 import { ShotMessage } from "../common/ShotMessage";
 import { getMap } from "../common/MapService";
 
@@ -154,7 +154,8 @@ const update = (delta: number) => {
   entityInputs.forEach(({ entity, command, user }) => {
     const [shooting, shotMessage] = handleInput(entity, command);
     if (user !== null && shooting) {
-      const timeAgo = user.latency + INTERPOLATION_DELAY;
+      const timeAgo =
+        performance.now() - command.time + user.latency + INTERPOLATION_DELAY;
       shotReports = shotReports.concat(
         lagCompensatedHitscanCheck(
           historian,
