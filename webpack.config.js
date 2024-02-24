@@ -1,6 +1,6 @@
 module.exports = {
     mode: 'development',
-    entry: './src/client/client-main.ts',
+    entry: './src/client.ts',
     module: {
         rules: [
             {
