@@ -6,9 +6,9 @@ import {
   User,
   Historian,
   IServerNetworkAdapter,
+  InstanceNetwork,
 } from "nengi";
 import { NType, ncontext } from "../common/ncontext";
-import { uWebSocketsInstanceAdapter } from "nengi-uws-instance-adapter";
 import { Entity } from "../common/Entity";
 import { IdentityMessage } from "../common/IdentityMessage";
 import { handleInput } from "../common/handleInput";
@@ -34,7 +34,8 @@ export enum ServerState {
 }
 
 export type GameServerConfig = {
-  port: number;
+  adapterClass: IInstanceAdapter;
+  port?: number | undefined;
 };
 export type MyUser = User & { entity: any; view: AABB2D }; // view is currently not used
 
@@ -44,11 +45,15 @@ export type EntityInputs = {
   user: User | null;
 }[];
 
+interface IInstanceAdapter {
+  new (network: InstanceNetwork, config: any): IServerNetworkAdapter;
+}
+
 export class GameServer {
   serverState: ServerState = ServerState.Stopped;
   instance: Instance;
-  instanceAdapter: IServerNetworkAdapter;
-  port: number;
+  instanceAdapter: IServerNetworkAdapter | undefined;
+  port: number | undefined;
   historian: Historian;
   mainChannel: Channel;
   map = getMap();
@@ -61,16 +66,13 @@ export class GameServer {
   entityInputs: EntityInputs = [];
   entitiesWithInput = new Map<number, boolean>();
 
-  constructor({ port = 9001 }: GameServerConfig) {
+  constructor({ adapterClass, port }: GameServerConfig) {
     this.instance = new Instance(ncontext);
 
     this.port = port;
-    this.instanceAdapter = new uWebSocketsInstanceAdapter(
-      this.instance.network,
-      {}
-    );
-    this.instanceAdapter.listen(port, () => {
-      console.log(`uws adapter is listening on ${port}`);
+    this.instanceAdapter = new adapterClass(this.instance.network, {});
+    this.instanceAdapter.listen(port || -1, () => {
+      console.log(`adapter is listening${port ? ` on ${port}` : ""}`);
     });
     this.instance.onConnect = this.authenticateUser;
 
@@ -205,6 +207,7 @@ export class GameServer {
 
   public start = () => {
     this.serverState = ServerState.Running;
+
     let prev = performance.now();
     const loop = () => {
       const start = performance.now();

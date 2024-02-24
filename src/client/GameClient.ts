@@ -1,6 +1,5 @@
-import { Client, Interpolator } from "nengi";
+import { Client, ClientNetwork, Context, Interpolator } from "nengi";
 import { ncontext } from "../common/ncontext";
-import { WebSocketClientAdapter } from "nengi-websocket-client-adapter";
 import { handlePredictionErrors } from "./handlePredictionErrors";
 import { handleMessages } from "./handleMessages";
 import { handleEntities } from "./handleEntities";
@@ -19,9 +18,13 @@ export enum ClientState {
 }
 
 export type GameClientConfig = {
+  adapterClass: IInstanceAdapter;
   address: string;
-  port: number;
 };
+
+interface IInstanceAdapter {
+  new (network: ClientNetwork, config: any): Object;
+}
 
 export class GameClient {
   clientState: ClientState = ClientState.Stopped;
@@ -35,20 +38,14 @@ export class GameClient {
   inputSystem: InputSystem;
 
   address: string;
-  port: number;
 
-  constructor({ address = "localhost", port = 9001 }: GameClientConfig) {
+  constructor({ adapterClass, address = "localhost" }: GameClientConfig) {
     this.address = address;
-    this.port = port;
     // load the map in the collision service and the renderer
     collisionService.registerMap(this.map);
     this.renderer.renderMap(this.map);
 
-    this.client = new Client(
-      ncontext,
-      WebSocketClientAdapter,
-      1000 / TICK_RATE
-    );
+    this.client = new Client(ncontext, adapterClass, 1000 / TICK_RATE);
     this.interpolator = new Interpolator(this.client);
     this.inputSystem = new InputSystem(this.renderer);
 
@@ -57,12 +54,9 @@ export class GameClient {
 
   public connect = async () => {
     try {
-      const res = await this.client.connect(
-        `ws://${this.address}:${this.port}`,
-        {
-          token: 12345,
-        }
-      );
+      const res = await this.client.connect(this.address, {
+        token: 12345,
+      });
       console.log("connection response", res);
     } catch (err) {
       console.log("connection error", err);
@@ -94,18 +88,12 @@ export class GameClient {
       handleMessages(this.renderer, this.client, this.state);
       handleEntities(this.interpolator, this.state, this.renderer);
 
-      if (this.clientState === ClientState.Running) {
-        const inputCommand = this.inputSystem.createNetworkCommand(delta);
-        this.client.addCommand(inputCommand);
-        predictInput(
-          delta,
-          this.renderer,
-          this.state,
-          inputCommand,
-          this.client
-        );
-        this.client.flush();
-      }
+      // if (this.clientState === ClientState.Running) {
+      const inputCommand = this.inputSystem.createNetworkCommand(delta);
+      this.client.addCommand(inputCommand);
+      predictInput(delta, this.renderer, this.state, inputCommand, this.client);
+      this.client.flush();
+      // }
 
       // after we did everything, render all the entities
       this.state.entities.forEach((entity) => {
