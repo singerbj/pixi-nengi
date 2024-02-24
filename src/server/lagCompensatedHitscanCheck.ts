@@ -1,10 +1,5 @@
-////////////////////////////////////////////////////////////////////////////////////////////////////
-// TODO: the historian is not yet implemented yet for nengi 2. might have to wait for that
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 import { RaycastHit, System } from "detect-collisions";
 import { ShotMessage } from "../common/ShotMessage";
-// import SpacialStructureHistorian from "./spacialStructureHistorian/SpacialStructureHistorian";
 import { getNewPointOnLineWithDistance } from "../common/Util";
 import { SHOT_DISTANCE } from "../common/Constants";
 import { Historian } from "nengi";
@@ -20,17 +15,6 @@ export const lagCompensatedHitscanCheck = (
   targetY: number,
   ignoreNids: number[] = []
 ): ShotMessage => {
-  // // const pastEntities = historian.getLagCompensatedEntities(timeAgo);
-  // const pastSpacialStructure =
-  //   historian.getLagCompensatedSpacialStructure(timeAgo);
-
-  // // use the smoothed system for calculations because thats what players are shooting at
-  // const pastSystem = pastSpacialStructure?.ssystem;
-
-  // const latestSpacialStructure =
-  //   historian.getLagCompensatedSpacialStructure(100);
-  // const latestSystem = latestSpacialStructure?.ssystem;
-
   // Get the actual shot coordinates based on the shot distance and the user input
   const [newTargetX, newTargetY] = getNewPointOnLineWithDistance(
     originX,

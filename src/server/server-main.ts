@@ -114,7 +114,6 @@ const update = (delta: number) => {
       entityMap.set(entity.nid, entity);
       entityUserMap.set(entity.nid, user);
       user.queueMessage(new IdentityMessage(entity.nid));
-      // console.log("connected", { user });
     }
 
     // user input
@@ -136,10 +135,6 @@ const update = (delta: number) => {
   //////////////////////////
   // game logic goes here //
   //////////////////////////
-
-  // entityMap.forEach((entity, nid) => {
-  //   entity.y += ENTITY_SPEED * delta;
-  // });
 
   // TODO: I think this technically works. But visually it looks bad
   //       I need to add the smooth and raw representations of the player on the server I think to help with this
@@ -198,15 +193,6 @@ const update = (delta: number) => {
   // stats compilation
   stats.entityCount = instance.localState._entities.size;
   stats.userCount = instance.users.size;
-
-  // record state with custom historian
-  // historian.record(
-  //   instance.tick,
-  //   // entities,
-  //   // [],
-  //   collisionService.getCopyOfSystem(),
-  //   collisionService.getCopyOfSoftSystem()
-  // );
 
   instance.step();
 };
