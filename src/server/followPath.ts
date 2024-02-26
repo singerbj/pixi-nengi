@@ -4,6 +4,7 @@
 import {
   ENTITY_SPEED_AND_GRAVITY,
   FOLLOW_BUDGET_FACTOR,
+  MAX_FOLLOW_DISTANCE,
 } from "../common/Constants";
 import { Entity } from "../common/Entity";
 import { calculateDistance } from "../common/Util";
@@ -20,17 +21,22 @@ export const followPath = (entity: Entity, delta: number) => {
       position.y
     );
 
-    if (budget >= dist) {
-      budget -= dist;
-      entity.sx = position.x;
-      entity.sy = position.y;
-      entity.positions.shift();
-    } else if (budget < dist) {
-      const ratio = budget / dist;
-      budget = 0;
-      entity.sx += dx * ratio;
-      entity.sy += dy * ratio;
-      entity.positions.unshift(position);
+    if (dist > MAX_FOLLOW_DISTANCE) {
+      entity.sx = entity.x;
+      entity.sy = entity.y;
+    } else {
+      if (budget >= dist) {
+        budget -= dist;
+        entity.sx = position.x;
+        entity.sy = position.y;
+        entity.positions.shift();
+      } else if (budget < dist) {
+        const ratio = budget / dist;
+        budget = 0;
+        entity.sx += dx * ratio;
+        entity.sy += dy * ratio;
+        entity.positions.unshift(position);
+      }
     }
   }
 };

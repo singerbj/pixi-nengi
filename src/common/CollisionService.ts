@@ -4,6 +4,7 @@ import { MapObject } from "./MapObject";
 import { CustomBox } from "./Collidable";
 import {
   JUMP_CHECK_RAYCAST_LENGTH,
+  JUMP_CHECK_RAYCAST_X_OFFSET,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
 } from "./Constants";
@@ -112,9 +113,12 @@ class CollisionService {
   entityCanJump(entity: Entity, system: System): boolean {
     //@ts-ignore //TODO: fix this somehow
     const hitLeft: RaycastHit<Body> | null = system.raycast(
-      { x: entity.collider.x, y: entity.collider.y + PLAYER_HEIGHT },
       {
-        x: entity.collider.x,
+        x: entity.collider.x + JUMP_CHECK_RAYCAST_X_OFFSET,
+        y: entity.collider.y + PLAYER_HEIGHT,
+      },
+      {
+        x: entity.collider.x + JUMP_CHECK_RAYCAST_X_OFFSET,
         y: entity.collider.y + PLAYER_HEIGHT + JUMP_CHECK_RAYCAST_LENGTH,
       },
       (body: any): boolean => {
@@ -126,11 +130,11 @@ class CollisionService {
     //@ts-expect-error //TODO: fix this somehow
     const hitRight: RaycastHit<Body> | null = system.raycast(
       {
-        x: entity.collider.x + PLAYER_WIDTH,
+        x: entity.collider.x + PLAYER_WIDTH - JUMP_CHECK_RAYCAST_X_OFFSET,
         y: entity.collider.y + PLAYER_HEIGHT,
       },
       {
-        x: entity.collider.x + PLAYER_WIDTH,
+        x: entity.collider.x + PLAYER_WIDTH - JUMP_CHECK_RAYCAST_X_OFFSET,
         y: entity.collider.y + PLAYER_HEIGHT + JUMP_CHECK_RAYCAST_LENGTH,
       },
       (body: any): boolean => {
