@@ -1,8 +1,12 @@
-import { System, Response } from "detect-collisions";
+import { System, Response, RaycastHit } from "detect-collisions";
 import { Entity } from "./Entity";
 import { MapObject } from "./MapObject";
 import { CustomBox } from "./Collidable";
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Constants";
+import {
+  JUMP_CHECK_RAYCAST_LENGTH,
+  PLAYER_HEIGHT,
+  PLAYER_WIDTH,
+} from "./Constants";
 import { getMap } from "./MapService";
 import { HistorySnapshot, IEntity } from "nengi";
 
@@ -103,6 +107,40 @@ class CollisionService {
       this.system.insert(mapObject.collider);
       this.ssystem.insert(mapObject.scollider);
     });
+  }
+
+  entityCanJump(entity: Entity, system: System): boolean {
+    //@ts-ignore //TODO: fix this somehow
+    const hitLeft: RaycastHit<Body> | null = system.raycast(
+      { x: entity.collider.x, y: entity.collider.y + PLAYER_HEIGHT },
+      {
+        x: entity.collider.x,
+        y: entity.collider.y + PLAYER_HEIGHT + JUMP_CHECK_RAYCAST_LENGTH,
+      },
+      (body: any): boolean => {
+        //@ts-ignore //TODO: fix this somehow
+        const nid = body.nid;
+        return nid === undefined || (nid !== entity.nid && nid !== 0);
+      }
+    );
+    //@ts-expect-error //TODO: fix this somehow
+    const hitRight: RaycastHit<Body> | null = system.raycast(
+      {
+        x: entity.collider.x + PLAYER_WIDTH,
+        y: entity.collider.y + PLAYER_HEIGHT,
+      },
+      {
+        x: entity.collider.x + PLAYER_WIDTH,
+        y: entity.collider.y + PLAYER_HEIGHT + JUMP_CHECK_RAYCAST_LENGTH,
+      },
+      (body: any): boolean => {
+        //@ts-ignore //TODO: fix this somehow
+        const nid = body.nid;
+        return nid === undefined || (nid !== entity.nid && nid !== 0);
+      }
+    );
+
+    return !!(hitLeft || hitRight);
   }
 }
 

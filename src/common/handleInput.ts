@@ -6,6 +6,10 @@ import { ShotMessage } from "./ShotMessage";
 
 const jumpTicksTracker = new Map<number, number>();
 
+// const canJump = (): boolean => {
+//   return true;
+// };
+
 export const handleInput = (
   entity: Entity,
   inputCommand: InputCommand
@@ -29,13 +33,20 @@ export const handleInput = (
   }
 
   // check if jump was just pressed and we aren't already jumping
-  if (up && jumpTicks === 0) {
-    jumpTicksTracker.set(entity.nid, JUMP_TICKS * 2);
+  const canJump = collisionService.entityCanJump(
+    entity,
+    collisionService.ssystem
+  );
+
+  if (up && canJump) {
+    jumpTicks = JUMP_TICKS * 2;
+    jumpTicksTracker.set(entity.nid, jumpTicks);
   }
 
   if (jumpTicks > 0) {
     normalizedVector.y = -((jumpTicks - JUMP_TICKS) / JUMP_TICKS);
-    jumpTicksTracker.set(entity.nid, jumpTicks - 1);
+    jumpTicks -= 1;
+    jumpTicksTracker.set(entity.nid, jumpTicks);
   } else {
     normalizedVector.y = 1;
   }

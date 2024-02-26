@@ -16,6 +16,8 @@ export class PIXIRenderer {
   camera: Container;
   graphicalEntitites: Map<number, GraphicalEntity>;
   state: State;
+  localPlayerGhost: Graphics;
+  softLocalPlayerGhost: Graphics;
 
   constructor(state: State) {
     this.state = state;
@@ -47,6 +49,15 @@ export class PIXIRenderer {
     this.background.endFill();
     this.stage.addChild(this.background);
 
+    this.localPlayerGhost = new Graphics();
+    this.localPlayerGhost.lineStyle(1, 0xff00ff);
+    this.localPlayerGhost.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    this.localPlayerGhost.endFill();
+    this.softLocalPlayerGhost = new Graphics();
+    this.softLocalPlayerGhost.lineStyle(1, 0x00ffff);
+    this.softLocalPlayerGhost.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+    this.softLocalPlayerGhost.endFill();
+
     this.stats = new Text(
       "",
       new TextStyle({
@@ -57,6 +68,8 @@ export class PIXIRenderer {
     );
     this.camera = new Container();
     this.camera.addChild(generateBackground());
+    this.camera.addChild(this.softLocalPlayerGhost);
+    this.camera.addChild(this.localPlayerGhost);
     this.stage.addChild(this.stats);
     this.stage.addChild(this.camera);
   }
@@ -185,5 +198,18 @@ export class PIXIRenderer {
       mapObjectGraphic.endFill();
       this.camera.addChild(mapObjectGraphic);
     });
+  }
+
+  updateLocalPlayerGhost(prop: any, value: any) {
+    if (prop === "x") {
+      this.localPlayerGhost.x = value;
+    } else if (prop === "y") {
+      this.localPlayerGhost.y = value;
+    }
+    if (prop === "sx") {
+      this.softLocalPlayerGhost.x = value;
+    } else if (prop === "sy") {
+      this.softLocalPlayerGhost.y = value;
+    }
   }
 }

@@ -55,6 +55,7 @@ export function handleEntities(
 
       if (entity) {
         if (state.isPredictionEnabled && state.myId === nid) {
+          renderer.updateLocalPlayerGhost(prop, value);
           return; // skip applying this state to the entity, we are predicting it instead
         }
         if (entity.ntype === NType.Entity) {
