@@ -33,14 +33,20 @@ export const handleInput = (
   }
 
   // check if jump was just pressed and we aren't already jumping
-  const canJump = collisionService.entityCanJump(
+  const isOnGround = collisionService.entityIsOnGround(
     entity,
     collisionService.ssystem
   );
 
-  if (up && canJump) {
-    jumpTicks = JUMP_TICKS * 2;
-    jumpTicksTracker.set(entity.nid, jumpTicks);
+  if (isOnGround) {
+    if (up) {
+      jumpTicks = JUMP_TICKS * 2;
+      jumpTicksTracker.set(entity.nid, jumpTicks);
+    } else {
+      // fall at the speed we would when jumping, even when we don't jump
+      jumpTicks = JUMP_TICKS;
+      jumpTicksTracker.set(entity.nid, jumpTicks);
+    }
   }
 
   if (jumpTicks > 0) {

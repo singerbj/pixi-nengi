@@ -9,8 +9,8 @@ export const MAX_FOLLOW_DISTANCE = 50;
 export const HISTORIAN_TICKS = 1000;
 export const SHOT_DISTANCE = 1000;
 export const MAP_OBJECT_STANDARD_FACTOR = 50;
-export const JUMP_TICKS = 100;
-export const JUMP_CHECK_RAYCAST_LENGTH = 5;
+export const JUMP_TICKS = 80;
+export const JUMP_CHECK_RAYCAST_LENGTH = 1;
 export const JUMP_CHECK_RAYCAST_X_OFFSET = 1;
 
 export const HOST_ID_LENGTH = 16;

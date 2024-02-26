@@ -110,7 +110,7 @@ class CollisionService {
     });
   }
 
-  entityCanJump(entity: Entity, system: System): boolean {
+  entityIsOnGround(entity: Entity, system: System): boolean {
     //@ts-ignore //TODO: fix this somehow
     const hitLeft: RaycastHit<Body> | null = system.raycast(
       {
