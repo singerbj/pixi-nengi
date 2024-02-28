@@ -9,9 +9,13 @@ export const MAX_FOLLOW_DISTANCE = 50;
 export const HISTORIAN_TICKS = 1000;
 export const SHOT_DISTANCE = 1000;
 export const MAP_OBJECT_STANDARD_FACTOR = 50;
-export const JUMP_TICKS = 80;
+export const X_JUMP_TICKS = 40;
+export const Y_JUMP_TICKS = 80;
 export const JUMP_CHECK_RAYCAST_LENGTH = 1;
+export const WALL_CHECK_RAYCAST_LENGTH = 1;
 export const JUMP_CHECK_RAYCAST_X_OFFSET = 1;
+export const WALL_CHECK_RAYCAST_Y_OFFSET = 1;
+export const LAST_JUMP_DELAY = 60;
 
 export const HOST_ID_LENGTH = 16;
 

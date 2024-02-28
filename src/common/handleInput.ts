@@ -1,14 +1,18 @@
 import { collisionService } from "./CollisionService";
-import { ENTITY_SPEED_AND_GRAVITY, JUMP_TICKS } from "./Constants";
+import {
+  ENTITY_SPEED_AND_GRAVITY,
+  LAST_JUMP_DELAY,
+  X_JUMP_TICKS,
+  Y_JUMP_TICKS,
+} from "./Constants";
 import { Entity } from "./Entity";
 import { InputCommand } from "./InputCommand";
 import { ShotMessage } from "./ShotMessage";
+import { clamp } from "./Util";
 
-const jumpTicksTracker = new Map<number, number>();
-
-// const canJump = (): boolean => {
-//   return true;
-// };
+const xJumpTicksTracker = new Map<number, number>();
+const yJumpTicksTracker = new Map<number, number>();
+const lastJumpTracker = new Map<number, number>();
 
 export const handleInput = (
   entity: Entity,
@@ -25,37 +29,104 @@ export const handleInput = (
     y: 0,
   };
 
-  // set up the jump ticks tracker if we haven't already
-  let jumpTicks = jumpTicksTracker.get(entity.nid);
-  if (jumpTicks === undefined) {
-    jumpTicks = 0;
-    jumpTicksTracker.set(entity.nid, jumpTicks);
+  // Set up the jump ticks trackers if we haven't already
+  let xJumpTicks = xJumpTicksTracker.get(entity.nid);
+  let yJumpTicks = yJumpTicksTracker.get(entity.nid);
+  let lastJumpTicks = lastJumpTracker.get(entity.nid);
+  if (xJumpTicks === undefined) {
+    xJumpTicks = 0;
+    xJumpTicksTracker.set(entity.nid, xJumpTicks);
+  }
+  if (yJumpTicks === undefined) {
+    yJumpTicks = 0;
+    yJumpTicksTracker.set(entity.nid, yJumpTicks);
+  }
+  if (lastJumpTicks === undefined) {
+    lastJumpTicks = 0;
+    lastJumpTracker.set(entity.nid, lastJumpTicks);
   }
 
-  // check if jump was just pressed and we aren't already jumping
+  // do raycasts to check if we are on the ground or a wall
   const isOnGround = collisionService.entityIsOnGround(
     entity,
     collisionService.ssystem
   );
+  const isOnLeftWall = collisionService.entityIsOnLeftWall(
+    entity,
+    collisionService.ssystem
+  );
+  const isOnRightWall = collisionService.entityIsOnRightWall(
+    entity,
+    collisionService.ssystem
+  );
 
+  // determine if we can jump again after a previous jump
+  const canJumpAgain =
+    lastJumpTicks === 0 &&
+    xJumpTicks === 0 &&
+    (isOnLeftWall || isOnRightWall) &&
+    yJumpTicks >= Y_JUMP_TICKS - Y_JUMP_TICKS / 2;
+
+  // if we are on the ground
   if (isOnGround) {
-    if (up) {
-      jumpTicks = JUMP_TICKS * 2;
-      jumpTicksTracker.set(entity.nid, jumpTicks);
+    // if jump was just pressed
+    if (up && lastJumpTicks === 0) {
+      // do a regular jump
+      yJumpTicks = Y_JUMP_TICKS * 2;
+      yJumpTicksTracker.set(entity.nid, yJumpTicks);
+      lastJumpTracker.set(entity.nid, LAST_JUMP_DELAY);
     } else {
-      // fall at the speed we would when jumping, even when we don't jump
-      jumpTicks = JUMP_TICKS;
-      jumpTicksTracker.set(entity.nid, jumpTicks);
+      // otherwise fall at the speed we would when jumping, even though we did't jump
+      yJumpTicks = Y_JUMP_TICKS;
+      yJumpTicksTracker.set(entity.nid, yJumpTicks);
+    }
+    // if we are not on the ground, check if we should do a wall jump
+  } else {
+    // if we are on a wall
+    if (isOnLeftWall || isOnRightWall) {
+      // if the up key is pressed and we are able to jump again
+      if (up && canJumpAgain) {
+        // do a wall jump
+        xJumpTicks = isOnLeftWall ? X_JUMP_TICKS * 2 : -X_JUMP_TICKS * 2;
+        xJumpTicksTracker.set(entity.nid, yJumpTicks);
+        yJumpTicks = Y_JUMP_TICKS * 2;
+        yJumpTicksTracker.set(entity.nid, yJumpTicks);
+        lastJumpTicks = LAST_JUMP_DELAY;
+        lastJumpTracker.set(entity.nid, LAST_JUMP_DELAY);
+      }
     }
   }
 
-  if (jumpTicks > 0) {
-    normalizedVector.y = -((jumpTicks - JUMP_TICKS) / JUMP_TICKS);
-    jumpTicks -= 1;
-    jumpTicksTracker.set(entity.nid, jumpTicks);
+  // update the x value of our normalized vector based on our progress horizontally in a wall jump
+  if (xJumpTicks > 0) {
+    normalizedVector.x += 0.5;
+    xJumpTicks -= 1;
+    xJumpTicksTracker.set(entity.nid, xJumpTicks);
+  } else if (xJumpTicks < 0) {
+    normalizedVector.x -= 0.5;
+    xJumpTicks += 1;
+    xJumpTicksTracker.set(entity.nid, xJumpTicks);
+  } else {
+    normalizedVector.x = movementX !== 0 ? movementX / Math.sqrt(2) : 0;
+  }
+
+  // update the y value of our normalized vector based on our progress in a jump vertically
+  if (yJumpTicks > 0) {
+    normalizedVector.y = -((yJumpTicks - Y_JUMP_TICKS) / Y_JUMP_TICKS);
+    yJumpTicks -= 1;
+    yJumpTicksTracker.set(entity.nid, yJumpTicks);
   } else {
     normalizedVector.y = 1;
   }
+
+  // Deduct our last jump tracker
+  if (lastJumpTicks > 0) {
+    lastJumpTicks -= 1;
+    lastJumpTracker.set(entity.nid, lastJumpTicks);
+  }
+
+  // Make sure our max x move speed is 1 in either direction
+  normalizedVector.x = clamp(normalizedVector.x, -1, 1);
 
   // Apply the movement with the same speed
   entity.x += ENTITY_SPEED_AND_GRAVITY * normalizedVector.x * delta;

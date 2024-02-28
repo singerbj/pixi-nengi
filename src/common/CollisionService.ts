@@ -7,6 +7,8 @@ import {
   JUMP_CHECK_RAYCAST_X_OFFSET,
   PLAYER_HEIGHT,
   PLAYER_WIDTH,
+  WALL_CHECK_RAYCAST_LENGTH,
+  WALL_CHECK_RAYCAST_Y_OFFSET,
 } from "./Constants";
 import { getMap } from "./MapService";
 import { HistorySnapshot, IEntity } from "nengi";
@@ -53,41 +55,6 @@ class CollisionService {
     return historicalSystem;
   }
 
-  // cloneSystem(system: System) {
-  //   const clone = Object.assign(
-  //     Object.create(Object.getPrototypeOf(system)),
-  //     system
-  //   );
-  //   // return new System().fromJSON(this.system.toJSON());
-  //   // return structuredClone(this.system);
-  //   // return new System().fromJSON(structuredClone(this.system.toJSON()));
-  //   // return this.system.toJSON();
-  //   return clone;
-  // }
-
-  // getCopyOfSystem() {
-  //   return this.cloneSystem(this.system);
-  // }
-
-  // getCopyOfSoftSystem() {
-  //   return this.cloneSystem(this.ssystem);
-  // }
-
-  // resolveAllCollisions() {
-  //   this.system.checkAll((response: Response) => {
-  //     if (
-  //       response.a.customOptions.type === "Entity" &&
-  //       response.b.customOptions.type === "Entity"
-  //     ) {
-  //       const { overlapV } = response;
-  //       response.a.setPosition(
-  //         response.a.x - overlapV.x,
-  //         response.a.y - overlapV.y
-  //       );
-  //     }
-  //   });
-  // }
-
   resolveCollisionsForEntity(entity: Entity) {
     entity.updateColliderFromPosition();
 
@@ -110,6 +77,68 @@ class CollisionService {
     });
   }
 
+  entityIsOnLeftWall(entity: Entity, system: System) {
+    return this.entityIsOnWall(entity, system, 0, 1);
+  }
+
+  entityIsOnRightWall(entity: Entity, system: System) {
+    return this.entityIsOnWall(entity, system, PLAYER_WIDTH, -1);
+  }
+
+  private entityIsOnWall(
+    entity: Entity,
+    system: System,
+    xOffset = 0,
+    directionMultiplier: 1 | -1
+  ): boolean {
+    //@ts-ignore //TODO: fix this somehow
+    const hitTopLeft: RaycastHit<Body> | null = system.raycast(
+      {
+        x:
+          entity.collider.x +
+          xOffset +
+          directionMultiplier * WALL_CHECK_RAYCAST_LENGTH,
+        y: entity.collider.y + WALL_CHECK_RAYCAST_LENGTH,
+      },
+      {
+        x:
+          entity.collider.x +
+          xOffset -
+          directionMultiplier * WALL_CHECK_RAYCAST_LENGTH,
+        y: entity.collider.y + WALL_CHECK_RAYCAST_LENGTH,
+      },
+      (body: any): boolean => {
+        return (
+          body.nid === undefined || (body.nid !== entity.nid && body.nid !== 0)
+        );
+      }
+    );
+    //@ts-ignore //TODO: fix this somehow
+    const hitBottomLeft: RaycastHit<Body> | null = system.raycast(
+      {
+        x:
+          entity.collider.x +
+          xOffset +
+          directionMultiplier * WALL_CHECK_RAYCAST_LENGTH,
+        y: entity.collider.y + PLAYER_HEIGHT - WALL_CHECK_RAYCAST_LENGTH,
+      },
+      {
+        x:
+          entity.collider.x +
+          xOffset -
+          directionMultiplier * WALL_CHECK_RAYCAST_LENGTH,
+        y: entity.collider.y + PLAYER_HEIGHT - WALL_CHECK_RAYCAST_LENGTH,
+      },
+      (body: any): boolean => {
+        return (
+          body.nid === undefined || (body.nid !== entity.nid && body.nid !== 0)
+        );
+      }
+    );
+
+    return !!(hitTopLeft || hitBottomLeft);
+  }
+
   entityIsOnGround(entity: Entity, system: System): boolean {
     //@ts-ignore //TODO: fix this somehow
     const hitLeft: RaycastHit<Body> | null = system.raycast(
@@ -122,9 +151,9 @@ class CollisionService {
         y: entity.collider.y + PLAYER_HEIGHT + JUMP_CHECK_RAYCAST_LENGTH,
       },
       (body: any): boolean => {
-        //@ts-ignore //TODO: fix this somehow
-        const nid = body.nid;
-        return nid === undefined || (nid !== entity.nid && nid !== 0);
+        return (
+          body.nid === undefined || (body.nid !== entity.nid && body.nid !== 0)
+        );
       }
     );
     //@ts-expect-error //TODO: fix this somehow
@@ -138,9 +167,9 @@ class CollisionService {
         y: entity.collider.y + PLAYER_HEIGHT + JUMP_CHECK_RAYCAST_LENGTH,
       },
       (body: any): boolean => {
-        //@ts-ignore //TODO: fix this somehow
-        const nid = body.nid;
-        return nid === undefined || (nid !== entity.nid && nid !== 0);
+        return (
+          body.nid === undefined || (body.nid !== entity.nid && body.nid !== 0)
+        );
       }
     );
 
