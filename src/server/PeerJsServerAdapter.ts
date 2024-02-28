@@ -36,7 +36,7 @@ export class PeerJsServerAdapter implements IServerNetworkAdapter {
     const self = this;
 
     var serverId = this.makeid(HOST_ID_LENGTH);
-    this.peer = new Peer(serverId, { debug: 2, host: "localhost", port: 9002 });
+    this.peer = new Peer(serverId, { debug: 2, host: "0.0.0.0", port: 9002 });
 
     console.log(`Creating PeerJs server with id: ${serverId}`);
     this.peer.on("open", (id) => {
