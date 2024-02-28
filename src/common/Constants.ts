@@ -1,3 +1,5 @@
+export const WEB_SOCKET_DEFAULT_PORT = 9001;
+
 export const MIN_FACTOR = 0.05;
 export const PLAYER_WIDTH = 50;
 export const PLAYER_HEIGHT = 50;
@@ -18,5 +20,4 @@ export const WALL_CHECK_RAYCAST_Y_OFFSET = 1;
 export const LAST_JUMP_DELAY = 60;
 
 export const HOST_ID_LENGTH = 16;
-
 export const TEMP_SERVER_ID_FOR_TESTING = "fdjffdfffasdjsjfsfu89f878907fdaf";
