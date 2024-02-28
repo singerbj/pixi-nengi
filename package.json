@@ -34,6 +34,7 @@
   },
   "dependencies": {
     "detect-collisions": "^9.2.2",
+    "html-webpack-plugin": "^5.6.0",
     "nengi": "2.0.0-alpha.170",
     "nengi-uws-instance-adapter": "^0.4.0",
     "nengi-websocket-client-adapter": "^0.7.0",
