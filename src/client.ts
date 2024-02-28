@@ -23,13 +23,21 @@ window.addEventListener("load", async () => {
   // });
 
   // @ts-ignore
-  console.log("==>", SERVER_ADDRESS);
+  const serverAddress = SERVER_ADDRESS;
 
+  // Set to secure websocket when not connecting to localhost
+  let wsProtocol = "ws";
+  if (serverAddress !== "localhost") {
+    wsProtocol = "wss";
+  }
+
+  // Create the game client
   const gameClient = new GameClient({
     adapterClass: WebSocketClientAdapter,
-    // @ts-ignore
-    address: `ws://${SERVER_ADDRESS}:${WEB_SOCKET_DEFAULT_PORT}`,
+    address: `${wsProtocol}://${serverAddress}:${WEB_SOCKET_DEFAULT_PORT}`,
   });
+
+  // Run the game client
   gameClient.connect().then(() => {
     gameClient.start();
   });
