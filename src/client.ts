@@ -24,17 +24,20 @@ window.addEventListener("load", async () => {
 
   // @ts-ignore
   const serverAddress = SERVER_ADDRESS;
+  const notOnLocalhost = serverAddress !== "localhost";
 
   // Set to secure websocket when not connecting to localhost
   let wsProtocol = "ws";
-  if (serverAddress !== "localhost") {
+  if (notOnLocalhost) {
     wsProtocol = "wss";
   }
 
   // Create the game client
   const gameClient = new GameClient({
     adapterClass: WebSocketClientAdapter,
-    address: `${wsProtocol}://${serverAddress}:${WEB_SOCKET_DEFAULT_PORT}`,
+    address:
+      `${wsProtocol}://${serverAddress}` +
+      (notOnLocalhost ? "" : `:${WEB_SOCKET_DEFAULT_PORT}`),
   });
 
   // Run the game client
