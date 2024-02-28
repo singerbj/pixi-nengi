@@ -16,8 +16,8 @@ FROM node:${NODE_VERSION}-alpine as base
 WORKDIR /usr/src/app
 
 # Install needed packages for uws.js
-# RUN apk add --no-cache libc6-compat 
-# RUN ln -s /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
+RUN apk add --no-cache libc6-compat 
+RUN ln -s -f /lib/libc.musl-x86_64.so.1 /lib/ld-linux-x86-64.so.2
 
 
 ################################################################################
