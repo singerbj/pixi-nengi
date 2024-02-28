@@ -10,6 +10,7 @@
     "server-profiler": "npx ts-node-dev --inspect -- ./src/server.ts",
     "test": "npx ts-jest",
     "build": "npx tsc",
+    "build:client": "NODE_ENV=production npx webpack",
     "typecheck": "npx tsc --project tsconfig.test.json",
     "lint": "npx eslint . --config .eslintrc.js",
     "lintfix": "npx eslint . --fix --config .eslintrc.js"
