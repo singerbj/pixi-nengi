@@ -22,9 +22,13 @@ window.addEventListener("load", async () => {
   //   address: TEMP_SERVER_ID_FOR_TESTING,
   // });
 
+  // @ts-ignore
+  console.log("==>", SERVER_ADDRESS);
+
   const gameClient = new GameClient({
     adapterClass: WebSocketClientAdapter,
-    address: `ws://localhost:${WEB_SOCKET_DEFAULT_PORT}`,
+    // @ts-ignore
+    address: `ws://${SERVER_ADDRESS}:${WEB_SOCKET_DEFAULT_PORT}`,
   });
   gameClient.connect().then(() => {
     gameClient.start();

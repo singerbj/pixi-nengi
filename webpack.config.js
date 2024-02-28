@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -26,8 +27,11 @@ module.exports = {
         port: 9000
     },
     plugins: [
+        new webpack.DefinePlugin({
+            'SERVER_ADDRESS': JSON.stringify(process.env.SERVER_ADDRESS || 'localhost')
+        }),
         new HtmlWebpackPlugin({
             template: 'public/index.html'
         })
-    ]
+    ],
 }
