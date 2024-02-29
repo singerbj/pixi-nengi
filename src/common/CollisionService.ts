@@ -136,7 +136,7 @@ class CollisionService {
       }
     );
 
-    return !!(hitTopLeft || hitBottomLeft);
+    return !!(hitTopLeft && hitBottomLeft);
   }
 
   entityIsOnGround(entity: Entity, system: System): boolean {
