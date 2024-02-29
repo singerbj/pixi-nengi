@@ -190,8 +190,9 @@ export class GameServer {
     // TODO: or don't? save the final list of entities for the historian
     // const entities: Entity[] = [];
     this.entityMap.forEach((entity) => {
-      // save the raw position so that we can create the smooth ones
-      entity.positions.push({ x: entity.x, y: entity.y });
+      // save the raw x and y positions so that we can create the smooth ones
+      entity.xPositions.push(entity.x);
+      entity.yPositions.push(entity.y);
       // create the smooth ones
       followPath(entity, delta);
       // entities.push(entity);

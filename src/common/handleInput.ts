@@ -1,6 +1,7 @@
 import { collisionService } from "./CollisionService";
 import {
-  ENTITY_SPEED_AND_GRAVITY,
+  ENTITY_SPEED,
+  ENTITY_JUMP_SPEED_AND_GRAVITY,
   LAST_JUMP_DELAY,
   X_JUMP_TICKS,
   Y_JUMP_TICKS,
@@ -20,12 +21,9 @@ export const handleInput = (
 ): [boolean, ShotMessage] => {
   const { up, left, right, delta, shooting, mouseX, mouseY } = inputCommand;
 
-  // Calculate the movement vector based on the input
-  const movementX = (right ? 1 : 0) - (left ? 1 : 0);
-
   // Normalize the movement vector
   const normalizedVector = {
-    x: movementX !== 0 ? movementX / Math.sqrt(2) : 0,
+    x: 0,
     y: 0,
   };
 
@@ -97,6 +95,9 @@ export const handleInput = (
     }
   }
 
+  // Set our normalized x vector initially based on input
+  normalizedVector.x = (right ? 1 : 0) - (left ? 1 : 0);
+
   // update the x value of our normalized vector based on our progress horizontally in a wall jump
   if (xJumpTicks > 0) {
     normalizedVector.x += 0.5;
@@ -106,8 +107,6 @@ export const handleInput = (
     normalizedVector.x -= 0.5;
     xJumpTicks += 1;
     xJumpTicksTracker.set(entity.nid, xJumpTicks);
-  } else {
-    normalizedVector.x = movementX !== 0 ? movementX / Math.sqrt(2) : 0;
   }
 
   // update the y value of our normalized vector based on our progress in a jump vertically
@@ -126,11 +125,16 @@ export const handleInput = (
   }
 
   // Make sure our max x move speed is 1 in either direction
-  normalizedVector.x = clamp(normalizedVector.x, -1, 1);
+  // normalizedVector.x = clamp(normalizedVector.x, -1, 1);
+
+  normalizedVector.x =
+    normalizedVector.x !== 0 ? normalizedVector.x / Math.sqrt(2) : 0;
+  normalizedVector.y =
+    normalizedVector.y !== 0 ? normalizedVector.y / Math.sqrt(2) : 0;
 
   // Apply the movement with the same speed
-  entity.x += ENTITY_SPEED_AND_GRAVITY * normalizedVector.x * delta;
-  entity.y += ENTITY_SPEED_AND_GRAVITY * normalizedVector.y * delta;
+  entity.x += ENTITY_SPEED * normalizedVector.x * delta;
+  entity.y += ENTITY_JUMP_SPEED_AND_GRAVITY * normalizedVector.y * delta;
 
   collisionService.resolveCollisionsForEntity(entity);
 
