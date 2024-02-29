@@ -9,17 +9,24 @@ import {
 import { Entity } from "./Entity";
 import { InputCommand } from "./InputCommand";
 import { ShotMessage } from "./ShotMessage";
-import { clamp } from "./Util";
+
+export enum JumpType {
+  Ground,
+  LeftWall,
+  RightWall,
+}
 
 const xJumpTicksTracker = new Map<number, number>();
 const yJumpTicksTracker = new Map<number, number>();
-const lastJumpTracker = new Map<number, number>();
+const lastJumpTicksTracker = new Map<number, number>();
+const lastJumpTypeTracker = new Map<number, JumpType>();
 
 export const handleInput = (
   entity: Entity,
   inputCommand: InputCommand
 ): [boolean, ShotMessage] => {
-  const { up, left, right, delta, shooting, mouseX, mouseY } = inputCommand;
+  const { upJustPressed, left, right, delta, shooting, mouseX, mouseY } =
+    inputCommand;
 
   // Normalize the movement vector
   const normalizedVector = {
@@ -30,7 +37,7 @@ export const handleInput = (
   // Set up the jump ticks trackers if we haven't already
   let xJumpTicks = xJumpTicksTracker.get(entity.nid);
   let yJumpTicks = yJumpTicksTracker.get(entity.nid);
-  let lastJumpTicks = lastJumpTracker.get(entity.nid);
+  let lastJumpTicks = lastJumpTicksTracker.get(entity.nid);
   if (xJumpTicks === undefined) {
     xJumpTicks = 0;
     xJumpTicksTracker.set(entity.nid, xJumpTicks);
@@ -41,7 +48,7 @@ export const handleInput = (
   }
   if (lastJumpTicks === undefined) {
     lastJumpTicks = 0;
-    lastJumpTracker.set(entity.nid, lastJumpTicks);
+    lastJumpTicksTracker.set(entity.nid, lastJumpTicks);
   }
 
   // do raycasts to check if we are on the ground or a wall
@@ -61,18 +68,21 @@ export const handleInput = (
   // determine if we can jump again after a previous jump
   const canJumpAgain =
     lastJumpTicks === 0 &&
-    xJumpTicks === 0 &&
+    xJumpTicks < LAST_JUMP_DELAY &&
     (isOnLeftWall || isOnRightWall) &&
-    yJumpTicks >= Y_JUMP_TICKS - Y_JUMP_TICKS / 2;
+    // yJumpTicks >= Y_JUMP_TICKS - Y_JUMP_TICKS / 4 &&
+    lastJumpTypeTracker.get(entity.nid) !==
+      (isOnLeftWall ? JumpType.LeftWall : JumpType.RightWall);
 
   // if we are on the ground
   if (isOnGround) {
     // if jump was just pressed
-    if (up && lastJumpTicks === 0) {
+    if (upJustPressed && lastJumpTicks === 0) {
       // do a regular jump
       yJumpTicks = Y_JUMP_TICKS * 2;
       yJumpTicksTracker.set(entity.nid, yJumpTicks);
-      lastJumpTracker.set(entity.nid, LAST_JUMP_DELAY);
+      lastJumpTicksTracker.set(entity.nid, LAST_JUMP_DELAY);
+      lastJumpTypeTracker.set(entity.nid, JumpType.Ground);
     } else {
       // otherwise fall at the speed we would when jumping, even though we did't jump
       yJumpTicks = Y_JUMP_TICKS;
@@ -83,14 +93,18 @@ export const handleInput = (
     // if we are on a wall
     if (isOnLeftWall || isOnRightWall) {
       // if the up key is pressed and we are able to jump again
-      if (up && canJumpAgain) {
+      if (upJustPressed && canJumpAgain) {
         // do a wall jump
         xJumpTicks = isOnLeftWall ? X_JUMP_TICKS * 2 : -X_JUMP_TICKS * 2;
         xJumpTicksTracker.set(entity.nid, yJumpTicks);
         yJumpTicks = Y_JUMP_TICKS * 2;
         yJumpTicksTracker.set(entity.nid, yJumpTicks);
         lastJumpTicks = LAST_JUMP_DELAY;
-        lastJumpTracker.set(entity.nid, LAST_JUMP_DELAY);
+        lastJumpTicksTracker.set(entity.nid, LAST_JUMP_DELAY);
+        lastJumpTypeTracker.set(
+          entity.nid,
+          isOnLeftWall ? JumpType.LeftWall : JumpType.RightWall
+        );
       }
     }
   }
@@ -121,7 +135,7 @@ export const handleInput = (
   // Deduct our last jump tracker
   if (lastJumpTicks > 0) {
     lastJumpTicks -= 1;
-    lastJumpTracker.set(entity.nid, lastJumpTicks);
+    lastJumpTicksTracker.set(entity.nid, lastJumpTicks);
   }
 
   // Make sure our max x move speed is 1 in either direction

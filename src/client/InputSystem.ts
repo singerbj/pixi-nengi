@@ -4,15 +4,17 @@ import { PIXIRenderer } from "../rendering/PIXIRenderer";
 
 // we could make this editable with an api, but this is just quick and dirty
 const keybindingLayer = new Map();
-keybindingLayer.set("w", "up");
-keybindingLayer.set(" ", "up");
+keybindingLayer.set("w", "upJustPressed");
+keybindingLayer.set(" ", "upJustPressed");
 keybindingLayer.set("a", "left");
 keybindingLayer.set("s", "down");
 keybindingLayer.set("d", "right");
 
-type ValidKeybind = "up" | "down" | "left" | "right";
+// track keyups for the keys that we want to be isJustPressed
+
+type ValidKeybind = "upJustPressed" | "down" | "left" | "right";
 type InputState = {
-  up: boolean;
+  upJustPressed: boolean;
   down: boolean;
   left: boolean;
   right: boolean;
@@ -26,11 +28,12 @@ export class InputSystem {
   perFrameInputState: InputState;
   currentInputState: InputState;
   lastFederatedPointerEvent: FederatedPointerEvent | undefined;
+  keyUpTracker = new Map<string, boolean>();
 
   constructor(renderer: PIXIRenderer) {
     this.renderer = renderer;
     this.perFrameInputState = {
-      up: false,
+      upJustPressed: false,
       down: false,
       left: false,
       right: false,
@@ -39,7 +42,7 @@ export class InputSystem {
       mouseY: 0,
     };
     this.currentInputState = {
-      up: false,
+      upJustPressed: false,
       down: false,
       left: false,
       right: false,
@@ -51,8 +54,12 @@ export class InputSystem {
     document.addEventListener("keydown", (e: KeyboardEvent) => {
       if (keybindingLayer.has(e.key)) {
         const bind = keybindingLayer.get(e.key) as ValidKeybind;
-        this.perFrameInputState[bind] = true;
-        this.currentInputState[bind] = true;
+        // use the keyup tracker to prevent the repetitive keydown events from triggering extra input events for isJustPressed type events
+        if (this.keyUpTracker.get(bind)) {
+          this.perFrameInputState[bind] = true;
+          this.currentInputState[bind] = true;
+          this.keyUpTracker.set(bind, false);
+        }
       }
     });
 
@@ -60,6 +67,7 @@ export class InputSystem {
       if (keybindingLayer.has(e.key)) {
         const bind = keybindingLayer.get(e.key) as ValidKeybind;
         this.currentInputState[bind] = false;
+        this.keyUpTracker.set(bind, true);
       }
     });
 
@@ -80,12 +88,11 @@ export class InputSystem {
   }
 
   resetKeys() {
-    // we reset all of the keys for the frame to false, unless they're still being held down
-    // at the moment that we invoke resetKeys (which is at the end of every frame)
-    if (!this.currentInputState.up) {
-      this.perFrameInputState.up = false;
-    }
+    // always reset the is just pressed type input state for the frame to false
+    this.perFrameInputState.upJustPressed = false;
 
+    // for the rest of the keys, we reset them for the frame to false, unless they're still being held down
+    // at the moment that we invoke resetKeys (which is at the end of every frame)
     if (!this.currentInputState.down) {
       this.perFrameInputState.down = false;
     }

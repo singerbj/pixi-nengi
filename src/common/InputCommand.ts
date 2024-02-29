@@ -2,8 +2,9 @@ import { Binary, defineSchema } from "nengi";
 import { NType } from "./ncontext";
 
 export const inputSchema = defineSchema({
-  up: Binary.Boolean,
-  down: Binary.Boolean,
+  // up: Binary.Boolean,
+  // down: Binary.Boolean,
+  upJustPressed: Binary.Boolean,
   left: Binary.Boolean,
   right: Binary.Boolean,
   shooting: Binary.Boolean,
@@ -18,8 +19,9 @@ export const inputSchema = defineSchema({
  */
 export class InputCommand {
   ntype = NType.InputCommand;
-  up = false;
-  down = false;
+  // up = false;
+  // down = false;
+  upJustPressed = false;
   left = false;
   right = false;
   shooting = false;
