@@ -125,7 +125,6 @@ export class GameServer {
       }
 
       // user input
-
       if (networkEvent.type === NetworkEvent.CommandSet) {
         const { user, commands, clientTick } = networkEvent;
         const { entity, view } = user as MyUser;

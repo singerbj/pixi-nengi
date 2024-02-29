@@ -5,10 +5,9 @@ export class State {
   myId = -1;
   isPredictionEnabled = true;
   entities: Map<number, Entity>;
-  stats: Map<number, StatsEntity>;
+  stats: StatsEntity | undefined;
 
   constructor() {
     this.entities = new Map();
-    this.stats = new Map();
   }
 }

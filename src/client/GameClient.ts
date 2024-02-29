@@ -100,6 +100,11 @@ export class GameClient {
         this.renderer.updateGraphicalEntity(entity);
       });
 
+      if (this.state.stats) {
+        this.state.stats.userLatency = this.client.network.latency;
+        this.renderer.renderStats(this.state.stats);
+      }
+
       this.inputSystem.resetKeys();
       this.renderer.cameraFollow();
       this.renderer.render();

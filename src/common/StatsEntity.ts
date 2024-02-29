@@ -22,6 +22,7 @@ export class StatsEntity {
   cpuMillisecondsPerTick = 0; // how long the game update took in milliseconds
   userCount = 0; // how many users are connected to the instance
   entityCount = 0; // how many entities are in the instance
+  userLatency = 0;
 
   averageDeltaMs = 0;
   averageCPUFrameMs = 0;

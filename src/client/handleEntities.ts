@@ -39,8 +39,7 @@ export function handleEntities(
         state.entities.set(newEntity.nid, newEntity);
       }
       if (entity.ntype === NType.StatsEntity) {
-        renderer.renderStats(entity);
-        state.stats.set(entity.nid, entity);
+        state.stats = entity;
       }
     });
 
@@ -49,8 +48,8 @@ export function handleEntities(
       const { nid, prop, value } = diff;
 
       let entity: Entity | StatsEntity | undefined = state.entities.get(nid);
-      if (entity === undefined) {
-        entity = state.stats.get(nid);
+      if (entity === undefined && state.stats?.nid === nid) {
+        entity = state.stats;
       }
 
       if (entity) {
@@ -73,7 +72,6 @@ export function handleEntities(
         } else if (entity.ntype === NType.StatsEntity) {
           // @ts-ignore
           entity[prop] = value;
-          renderer.renderStats(<StatsEntity>entity);
         }
       } else {
         console.log(
