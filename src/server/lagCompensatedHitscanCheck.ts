@@ -74,7 +74,9 @@ export const lagCompensatedHitscanCheck = (
       );
     }
   } else {
-    console.error("Not enough historical frames to do hit detection!");
+    console.error(
+      `Not enough historical frames to do hit detection! (timeAgo=${timeAgo})`
+    );
     return new ShotMessage(
       shooterId,
       originX,
