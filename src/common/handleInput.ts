@@ -67,7 +67,7 @@ export const handleInput = (
 
   // determine if we can jump again after a previous jump
   const canJumpAgain =
-    lastJumpTicks === 0 &&
+    lastJumpTicks <= 0 &&
     xJumpTicks < LAST_JUMP_DELAY &&
     (isOnLeftWall || isOnRightWall) &&
     // yJumpTicks >= Y_JUMP_TICKS - Y_JUMP_TICKS / 4 &&
@@ -77,7 +77,7 @@ export const handleInput = (
   // if we are on the ground
   if (isOnGround) {
     // if jump was just pressed
-    if (upJustPressed && lastJumpTicks === 0) {
+    if (upJustPressed && lastJumpTicks <= 0) {
       // do a regular jump
       yJumpTicks = Y_JUMP_TICKS * 2;
       yJumpTicksTracker.set(entity.nid, yJumpTicks);
@@ -115,18 +115,18 @@ export const handleInput = (
   // update the x value of our normalized vector based on our progress horizontally in a wall jump
   if (xJumpTicks > 0) {
     normalizedVector.x += 0.5;
-    xJumpTicks -= 1;
+    xJumpTicks -= 1 * delta;
     xJumpTicksTracker.set(entity.nid, xJumpTicks);
   } else if (xJumpTicks < 0) {
     normalizedVector.x -= 0.5;
-    xJumpTicks += 1;
+    xJumpTicks += 1 * delta;
     xJumpTicksTracker.set(entity.nid, xJumpTicks);
   }
 
   // update the y value of our normalized vector based on our progress in a jump vertically
   if (yJumpTicks > 0) {
     normalizedVector.y = -((yJumpTicks - Y_JUMP_TICKS) / Y_JUMP_TICKS);
-    yJumpTicks -= 1;
+    yJumpTicks -= 1 * delta;
     yJumpTicksTracker.set(entity.nid, yJumpTicks);
   } else {
     normalizedVector.y = 1;
@@ -134,13 +134,11 @@ export const handleInput = (
 
   // Deduct our last jump tracker
   if (lastJumpTicks > 0) {
-    lastJumpTicks -= 1;
+    lastJumpTicks -= 1 * delta;
     lastJumpTicksTracker.set(entity.nid, lastJumpTicks);
   }
 
-  // Make sure our max x move speed is 1 in either direction
-  // normalizedVector.x = clamp(normalizedVector.x, -1, 1);
-
+  // clamp the normalized vectors to max speeds
   normalizedVector.x =
     normalizedVector.x !== 0 ? normalizedVector.x / Math.sqrt(2) : 0;
   normalizedVector.y =
