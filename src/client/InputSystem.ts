@@ -55,7 +55,10 @@ export class InputSystem {
       if (keybindingLayer.has(e.key)) {
         const bind = keybindingLayer.get(e.key) as ValidKeybind;
         // use the keyup tracker to prevent the repetitive keydown events from triggering extra input events for isJustPressed type events
-        if (this.keyUpTracker.get(bind)) {
+        if (
+          this.keyUpTracker.get(bind) === undefined ||
+          this.keyUpTracker.get(bind) === true
+        ) {
           this.perFrameInputState[bind] = true;
           this.currentInputState[bind] = true;
           this.keyUpTracker.set(bind, false);
