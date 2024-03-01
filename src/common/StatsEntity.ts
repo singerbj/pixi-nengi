@@ -8,7 +8,7 @@ export const statsEntitySchema = defineSchema({
   userCount: Binary.UInt16,
   entityCount: Binary.UInt32, // just in case we try having more than 65535 entities later...
   averageDeltaMs: Binary.Float32,
-  averageCPUFrameMs: Binary.Float32,
+  averageFrameTimeMs: Binary.Float32,
 });
 
 /**
@@ -25,12 +25,12 @@ export class StatsEntity {
   userLatency = 0;
 
   averageDeltaMs = 0;
-  averageCPUFrameMs = 0;
+  averageFrameTimeMs = 0;
 
   _deltas: number[] = [];
   _deltasSampleSize = 10;
-  _cpuFrames: number[] = [];
-  _cpuFramesSampleSize = 10;
+  _frameTimes: number[] = [];
+  _framesTimeSampleSize = 10;
 
   registerDelta(deltaMs: number) {
     this._deltas.unshift(deltaMs);
@@ -44,15 +44,15 @@ export class StatsEntity {
     this.averageDeltaMs = total / this._deltasSampleSize;
   }
 
-  registerCPUFrame(frametime: number) {
-    this._cpuFrames.unshift(frametime);
-    while (this._cpuFrames.length > this._cpuFramesSampleSize) {
-      this._cpuFrames.pop();
+  registerFrametime(frametime: number) {
+    this._frameTimes.unshift(frametime);
+    while (this._frameTimes.length > this._framesTimeSampleSize) {
+      this._frameTimes.pop();
     }
     let total = 0;
-    for (let i = 0; i < this._cpuFrames.length; i++) {
-      total += this._cpuFrames[i];
+    for (let i = 0; i < this._frameTimes.length; i++) {
+      total += this._frameTimes[i];
     }
-    this.averageCPUFrameMs = total / this._cpuFramesSampleSize;
+    this.averageFrameTimeMs = total / this._framesTimeSampleSize;
   }
 }

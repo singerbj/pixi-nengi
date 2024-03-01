@@ -100,7 +100,7 @@ export class GameClient {
         this.renderer.updateGraphicalEntity(entity);
       });
 
-      if (this.state.stats) {
+      if (this.state.stats && this.client.network.frameTick % 10 === 0) {
         this.state.stats.userLatency = this.client.network.latency;
         this.renderer.renderStats(this.state.stats);
       }

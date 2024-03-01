@@ -217,7 +217,7 @@ export class GameServer {
       this.update(deltaMs / 1000);
       const end = performance.now();
       const frametime = end - start;
-      this.stats.registerCPUFrame(frametime);
+      this.stats.registerFrametime(frametime);
       this.stats.cpuMillisecondsPerTick = frametime; // technically this is the previous frames' time by the time the client sees it
 
       // this.logServerInfo(frametime);

@@ -120,13 +120,13 @@ export class PIXIRenderer {
   renderStats(entity: StatsEntity) {
     const {
       averageDeltaMs,
-      averageCPUFrameMs,
+      averageFrameTimeMs,
       userCount,
       entityCount,
       userLatency,
     } = entity;
     this.stats.text = `
-    averageCPUFrameMs: ${averageCPUFrameMs}
+    averageFrameTimeMs: ${averageFrameTimeMs}
     averageDeltaMs: ${averageDeltaMs}
     userCount: ${userCount}
     entityCount: ${entityCount}
