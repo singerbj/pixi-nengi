@@ -3,6 +3,7 @@ export const WEB_SOCKET_DEFAULT_PORT = 9001;
 export const MIN_FACTOR = 0.05;
 export const PLAYER_WIDTH = 50;
 export const PLAYER_HEIGHT = 50;
+export const PLAYER_MAX_HEALTH = 1000;
 export const INTERPOLATION_DELAY = 150;
 export const TICK_RATE = 1000 / 20;
 export const ENTITY_SPEED = 300;

@@ -53,21 +53,26 @@ export function handleEntities(
       }
 
       if (entity) {
-        if (state.isPredictionEnabled && state.myId === nid) {
-          renderer.updateLocalPlayerGhost(prop, value);
-          return; // skip applying this state to the entity, we are predicting it instead
-        }
         if (entity.ntype === NType.Entity) {
-          if (prop === "sx") {
-            (<Entity>entity).x = value;
-            const collider = (<Entity>entity).collider;
-            collider.setPosition(value, collider.y);
-            entitiesThatNeedColliderUpdate.set(entity.nid, true);
-          } else if (prop === "sy") {
-            (<Entity>entity).y = value;
-            const collider = (<Entity>entity).collider;
-            collider.setPosition(collider.x, value);
-            entitiesThatNeedColliderUpdate.set(entity.nid, true);
+          if (state.isPredictionEnabled && state.myId === nid) {
+            renderer.updateLocalPlayerGhost(prop, value);
+          } else {
+            // these updates apply to everyone but the local player because we are predicting
+            if (prop === "sx") {
+              (<Entity>entity).x = value;
+              const collider = (<Entity>entity).collider;
+              collider.setPosition(value, collider.y);
+              entitiesThatNeedColliderUpdate.set(entity.nid, true);
+            } else if (prop === "sy") {
+              (<Entity>entity).y = value;
+              const collider = (<Entity>entity).collider;
+              collider.setPosition(collider.x, value);
+              entitiesThatNeedColliderUpdate.set(entity.nid, true);
+            }
+          }
+          // these updates apply to all players
+          if (prop === "health") {
+            (<Entity>entity).health = value;
           }
         } else if (entity.ntype === NType.StatsEntity) {
           // @ts-ignore

@@ -1,7 +1,8 @@
 import { Binary, defineSchema } from "nengi";
 import { DynamicCollidable, CustomBox, CollidableType } from "./Collidable";
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./Constants";
+import { PLAYER_HEIGHT, PLAYER_MAX_HEALTH, PLAYER_WIDTH } from "./Constants";
 import { NType } from "./ncontext";
+import { rand } from "./Util";
 
 type Position = { x: number; y: number };
 
@@ -12,6 +13,7 @@ export const entitySchema = defineSchema({
   y: { type: Binary.Float64, interp: true },
   sx: { type: Binary.Float64, interp: true },
   sy: { type: Binary.Float64, interp: true },
+  health: { type: Binary.Int16, interp: false },
 });
 
 /**
@@ -26,6 +28,7 @@ export class Entity implements DynamicCollidable {
   y = 0; // The raw y position of this entity
   sx = 0; // The smoothed x position of this entity, for other clients to use visually and therfore the server to use for raycast checks
   sy = 0; // The smoothed y position of this entity, for other clients to use visually and therfore the server to use for raycast checks
+  health = PLAYER_MAX_HEALTH;
   xPositions: number[] = []; // The historical x positions for this entity used for path following
   yPositions: number[] = []; // The historical y positions for this entity used for path following
   collidableType = CollidableType.Entity;
@@ -80,5 +83,25 @@ export class Entity implements DynamicCollidable {
     this.y = this.collider.pos.y;
     this.sx = this.scollider.pos.x;
     this.sy = this.scollider.pos.y;
+  }
+
+  takeDamage(damage: number) {
+    this.health = this.health - damage < 0 ? 0 : this.health - damage;
+    if (this.health === 0) {
+      setTimeout(() => {
+        this.respawn(rand(-400, 400), rand(0, 400));
+      }, 2000);
+    }
+  }
+
+  respawn(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+    this.sx = x;
+    this.sy = y;
+
+    setTimeout(() => {
+      this.health = PLAYER_MAX_HEALTH;
+    }, 1000);
   }
 }

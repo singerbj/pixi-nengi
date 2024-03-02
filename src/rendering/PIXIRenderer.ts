@@ -4,7 +4,11 @@ import { generateBackground } from "./generateBackground";
 import { Entity } from "../common/Entity";
 import { GraphicalEntity } from "./GraphicalEntity";
 import { StatsEntity } from "../common/StatsEntity";
-import { PLAYER_HEIGHT, PLAYER_WIDTH } from "../common/Constants";
+import {
+  PLAYER_HEIGHT,
+  PLAYER_MAX_HEALTH,
+  PLAYER_WIDTH,
+} from "../common/Constants";
 import { ShotMessage } from "../common/ShotMessage";
 import { MapObject } from "../common/MapObject";
 
@@ -49,10 +53,6 @@ export class PIXIRenderer {
     this.background.endFill();
     this.stage.addChild(this.background);
 
-    // this.localPlayerGhost = new Graphics();
-    // this.localPlayerGhost.lineStyle(1, 0xff00ff);
-    // this.localPlayerGhost.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
-    // this.localPlayerGhost.endFill();
     this.softLocalPlayerGhost = new Graphics();
     this.softLocalPlayerGhost.lineStyle(1, 0x00ffff);
     this.softLocalPlayerGhost.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
@@ -89,31 +89,30 @@ export class PIXIRenderer {
     }
   }
 
-  // renderGraphicalEntity(entity: Entity) {
-  //   const graphicalEntity = this.graphicalEntitites.get(entity.nid);
-  //   if (graphicalEntity) {
-  //     graphicalEntity.updatePositionWithInterpolation(entity);
-  //   }
-  // }
-
   updateGraphicalEntity(entity: Entity) {
     const graphicalEntity = this.graphicalEntitites.get(entity.nid);
     if (graphicalEntity) {
-      graphicalEntity.x = entity.x;
-      graphicalEntity.y = entity.y;
-      // graphicalEntity.sGraphics.x = entity.sx;
-      // graphicalEntity.sGraphics.y = entity.sx;
-      // console.log(entity.x, entity.sx);
-
-      // const tempBox = new Graphics();
-      // tempBox.lineStyle(1, 0xff00ff); //(thickness, color)
-      // tempBox.drawRect(entity.sx, entity.sx, PLAYER_WIDTH, PLAYER_HEIGHT);
-      // tempBox.endFill();
-      // this.camera.addChild(tempBox);
-
-      // setTimeout(() => {
-      //   tempBox.destroy();
-      // }, 500);
+      const lineStyle = entity.health / PLAYER_MAX_HEALTH;
+      graphicalEntity.graphics.clear();
+      graphicalEntity.nidText.alpha = 0;
+      if (entity.health > 0) {
+        graphicalEntity.nidText.alpha = 1;
+        graphicalEntity.x = entity.x;
+        graphicalEntity.y = entity.y;
+        graphicalEntity.graphics.lineStyle(3, [
+          lineStyle,
+          lineStyle,
+          lineStyle,
+          1 - lineStyle,
+        ]);
+        graphicalEntity.graphics.beginFill([
+          1,
+          0,
+          entity.health / PLAYER_MAX_HEALTH,
+        ]);
+        graphicalEntity.graphics.drawRect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT);
+        graphicalEntity.graphics.endFill();
+      }
     }
   }
 
@@ -148,7 +147,7 @@ export class PIXIRenderer {
 
   cameraFollow() {
     const entity = this.state.entities.get(this.state.myId);
-    if (entity) {
+    if (entity && entity.health > 0) {
       this.camera.x =
         -entity.x + this.renderer.screen.width / 2 - PLAYER_WIDTH / 2;
       this.camera.y =

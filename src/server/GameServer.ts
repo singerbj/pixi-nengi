@@ -109,8 +109,8 @@ export class GameServer {
 
         // set random spawn position
         // TODO: Improve this to be like, fair and stuff
-        entity.x = rand(-300, 300);
-        entity.y = rand(250, 400);
+        entity.x = rand(-400, 400);
+        entity.y = rand(0, 400);
 
         entity.updateColliderFromPosition();
 
@@ -166,6 +166,7 @@ export class GameServer {
           lagCompensatedHitscanCheck(
             this.historian,
             entity.nid,
+            this.entityMap,
             timeAgo,
             shotMessage.originX + PLAYER_WIDTH / 2,
             shotMessage.originY + PLAYER_HEIGHT / 2,

@@ -4,10 +4,12 @@ import { getNewPointOnLineWithDistance } from "../common/Util";
 import { SHOT_DISTANCE } from "../common/Constants";
 import { Historian } from "nengi";
 import { collisionService } from "../common/CollisionService";
+import { Entity } from "../common/Entity";
 
 export const lagCompensatedHitscanCheck = (
   historian: Historian,
   shooterId: number,
+  entities: Map<number, Entity>,
   timeAgo: number,
   originX: number,
   originY: number,
@@ -39,15 +41,27 @@ export const lagCompensatedHitscanCheck = (
         //TODO: fix this somehow
         //@ts-ignore
         const nid = body.nid;
-        // console.log(body);
-        return nid === undefined || !ignoreNids.includes(nid);
+        const health = entities.get(nid)?.health;
+        return (
+          nid !== undefined &&
+          !ignoreNids.includes(nid) &&
+          health !== undefined &&
+          health > 0
+        );
       }
     );
 
     if (hit !== null) {
       // TODO: fix this
-      //@ts-ignore
-      // console.log(hit.body.customOptions.nid, hit.body.customOptions.soft);
+      //@ts-expect-error
+      const nid = hit.body.nid;
+      const hitEntity: Entity | undefined = entities.get(nid);
+
+      if (hitEntity) {
+        hitEntity.takeDamage(3);
+      } else {
+        console.error("Hit entity not found with nid:", nid);
+      }
       return new ShotMessage(
         shooterId,
         originX,
