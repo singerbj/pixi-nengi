@@ -9,6 +9,7 @@ import {
 import { Entity } from "./Entity";
 import { InputCommand } from "./InputCommand";
 import { ShotMessage } from "./ShotMessage";
+import { clamp } from "./Util";
 
 export enum JumpType {
   Ground,
@@ -144,11 +145,30 @@ export const handleInput = (
   normalizedVector.y =
     normalizedVector.y !== 0 ? normalizedVector.y / Math.sqrt(2) : 0;
 
+  // disallow movement into the ground or a wall
+  if (isOnGround) {
+    normalizedVector.y = clamp(normalizedVector.y, -Infinity, 0);
+  }
+
+  if (isOnLeftWall) {
+    normalizedVector.x = clamp(normalizedVector.x, 0, Infinity);
+  }
+
+  if (isOnRightWall) {
+    normalizedVector.x = clamp(normalizedVector.x, -Infinity, 0);
+  }
+
   // Apply the movement with the same speed
   entity.x += ENTITY_SPEED * normalizedVector.x * delta;
   entity.y += ENTITY_JUMP_SPEED_AND_GRAVITY * normalizedVector.y * delta;
 
+  const prevEntity = { ...entity };
   collisionService.resolveCollisionsForEntity(entity);
+  if (prevEntity.x !== entity.x || prevEntity.y !== entity.y) {
+    console.log(
+      `collision resolved: before -> {${prevEntity.x}, ${prevEntity.x}} after -> {${entity.x}, ${entity.x}} `
+    );
+  }
 
   return [
     shooting,
