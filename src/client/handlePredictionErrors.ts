@@ -4,7 +4,7 @@ import { Entity, entitySchema } from "../common/Entity";
 import { handleInput } from "../common/handleInput";
 import { NType } from "../common/ncontext";
 
-export function handlePredictionErrors(client: Client, state: State) {
+export const handlePredictionErrors = (client: Client, state: State) => {
   // errors in clientside prediction (determined based on fresh server data this frame)
   while (client.network.predictionErrorFrames.length > 0) {
     const predictionErrorFrame = client.network.predictionErrorFrames.pop();
@@ -18,7 +18,6 @@ export function handlePredictionErrors(client: Client, state: State) {
           predictionErrorEntity.errors.forEach(
             (predictionErrorProperty: PredictionErrorProperty) => {
               const { prop, actualValue } = predictionErrorProperty;
-              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
               //@ts-ignore
               entity[prop] = actualValue;
             }
@@ -49,4 +48,4 @@ export function handlePredictionErrors(client: Client, state: State) {
       );
     }
   }
-}
+};

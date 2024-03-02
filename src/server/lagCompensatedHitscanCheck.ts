@@ -17,7 +17,8 @@ export const lagCompensatedHitscanCheck = (
 ): ShotMessage => {
   // Get the actual shot coordinates based on the shot distance and the user input
   const [newTargetX, newTargetY] = getNewPointOnLineWithDistance(
-    originX,
+    // fix for NaN issue
+    originX === targetX ? originX + 0.000001 : originX,
     originY,
     targetX,
     targetY,
