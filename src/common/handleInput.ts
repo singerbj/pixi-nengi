@@ -69,7 +69,7 @@ export const handleInput = (
   // determine if we can jump again after a previous jump
   const canJumpAgain =
     lastJumpTicks <= 0 &&
-    xJumpTicks < LAST_JUMP_DELAY &&
+    // xJumpTicks < LAST_JUMP_DELAY &&
     (isOnLeftWall || isOnRightWall) &&
     // yJumpTicks >= Y_JUMP_TICKS - Y_JUMP_TICKS / 4 &&
     lastJumpTypeTracker.get(entity.nid) !==
@@ -97,7 +97,7 @@ export const handleInput = (
       if (upJustPressed && canJumpAgain) {
         // do a wall jump
         xJumpTicks = isOnLeftWall ? X_JUMP_TICKS * 2 : -X_JUMP_TICKS * 2;
-        xJumpTicksTracker.set(entity.nid, yJumpTicks);
+        xJumpTicksTracker.set(entity.nid, xJumpTicks);
         yJumpTicks = Y_JUMP_TICKS * 2;
         yJumpTicksTracker.set(entity.nid, yJumpTicks);
         lastJumpTicks = LAST_JUMP_DELAY;
@@ -115,12 +115,18 @@ export const handleInput = (
 
   // update the x value of our normalized vector based on our progress horizontally in a wall jump
   if (xJumpTicks > 0) {
+    // give a little boost to momentum after a wall jump
     normalizedVector.x += 0.5;
     xJumpTicks -= 1 * delta;
+    // clamp our xJumpTicks tracking to 0 to avoid jitter
+    xJumpTicks = xJumpTicks < 0 ? 0 : xJumpTicks;
     xJumpTicksTracker.set(entity.nid, xJumpTicks);
   } else if (xJumpTicks < 0) {
+    // give a little boost to momentum after a wall jump
     normalizedVector.x -= 0.5;
     xJumpTicks += 1 * delta;
+    // clamp our xJumpTicks tracking to 0 to avoid jitter
+    xJumpTicks = xJumpTicks > 0 ? 0 : xJumpTicks;
     xJumpTicksTracker.set(entity.nid, xJumpTicks);
   }
 
@@ -162,13 +168,7 @@ export const handleInput = (
   entity.x += ENTITY_SPEED * normalizedVector.x * delta;
   entity.y += ENTITY_JUMP_SPEED_AND_GRAVITY * normalizedVector.y * delta;
 
-  const prevEntity = { ...entity };
   collisionService.resolveCollisionsForEntity(entity);
-  if (prevEntity.x !== entity.x || prevEntity.y !== entity.y) {
-    console.log(
-      `collision resolved: before -> {${prevEntity.x}, ${prevEntity.x}} after -> {${entity.x}, ${entity.x}} `
-    );
-  }
 
   return [
     shooting,
