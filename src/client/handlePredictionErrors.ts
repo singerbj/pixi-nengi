@@ -34,11 +34,11 @@ export const handlePredictionErrors = (client: Client, state: State) => {
                 // entity.processMove(command)
                 handleInput(entity, unconfirmedCommand);
                 // client.addCustomPrediction(clientTick, prediction, ['x', 'y']) // overwrite
-                const { nid, x, y } = entity;
+                const { nid, x, sx, y, sy } = entity;
                 client.predictor.addCustom(
                   clientTick,
-                  { nid, x, y },
-                  ["x", "y"],
+                  { nid, x, sx, y, sy },
+                  ["x", "sx", "y", "sy"],
                   entitySchema
                 );
               }
