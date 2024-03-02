@@ -23,8 +23,11 @@ window.addEventListener("load", async () => {
   // });
 
   // @ts-ignore
-  const serverAddress = SERVER_ADDRESS;
+  let serverAddress = SERVER_ADDRESS;
   const notOnLocalhost = serverAddress !== "localhost";
+
+  serverAddress =
+    serverAddress === "localhost" ? window.location.hostname : serverAddress;
 
   // Set to secure websocket when not connecting to localhost
   let wsProtocol = "ws";
