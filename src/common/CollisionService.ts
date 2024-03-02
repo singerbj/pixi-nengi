@@ -1,7 +1,7 @@
 import { System, Response, RaycastHit } from "detect-collisions";
 import { Entity } from "./Entity";
 import { MapObject } from "./MapObject";
-import { CustomBox } from "./Collidable";
+import { CollidableType, CustomBox } from "./Collidable";
 import {
   JUMP_CHECK_RAYCAST_LENGTH,
   JUMP_CHECK_RAYCAST_X_OFFSET,
@@ -35,7 +35,7 @@ class CollisionService {
           { x: entity.sx, y: entity.sy },
           PLAYER_WIDTH,
           PLAYER_HEIGHT,
-          "Entity", //TODO: find a better way of referencing this stuff
+          CollidableType.Entity, //TODO: find a better way of referencing this stuff
           undefined,
           entity.nid
         )
@@ -61,12 +61,18 @@ class CollisionService {
     this.system.checkOne(entity.collider, (response: Response) => {
       const { overlapV } = response;
 
-      response.a.setPosition(
-        response.a.x - overlapV.x,
-        response.a.y - overlapV.y
-      );
-      response.a.updateBody();
-      entity.updatePositionFromCollider();
+      // Only allow players to collide with MapObjects for now
+      if (
+        response.a.collidableType === CollidableType.MapObject ||
+        response.b.collidableType === CollidableType.MapObject
+      ) {
+        response.a.setPosition(
+          response.a.x - overlapV.x,
+          response.a.y - overlapV.y
+        );
+        response.a.updateBody();
+        entity.updatePositionFromCollider();
+      }
     });
   }
 

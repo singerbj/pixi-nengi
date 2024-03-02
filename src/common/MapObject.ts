@@ -6,7 +6,7 @@ export class MapObject implements StaticCollidable {
   y: number;
   width: number;
   height: number;
-  collidableType: CollidableType = "MapObject";
+  collidableType = CollidableType.MapObject;
   collider: CustomBox;
   scollider: CustomBox;
   colliderOptions = {
@@ -25,14 +25,14 @@ export class MapObject implements StaticCollidable {
       { x, y },
       width,
       height,
-      "MapObject",
+      this.collidableType,
       this.colliderOptions
     );
     this.scollider = new CustomBox(
       { x, y },
       width,
       height,
-      "MapObject",
+      this.collidableType,
       this.colliderOptions
     );
   }

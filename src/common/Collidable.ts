@@ -1,22 +1,10 @@
 import { BodyOptions, Box, PotentialVector } from "detect-collisions";
+import { MapObject } from "./MapObject";
 
-export const possibleCollideableTypes = ["Entity", "MapObject"] as const;
-export type CollidableType = (typeof possibleCollideableTypes)[number];
-
-export const isCollidableType = (
-  maybeCollidableType: string
-): CollidableType => {
-  const collidableType = possibleCollideableTypes.find(
-    (validCollidableType) => validCollidableType === maybeCollidableType
-  );
-  if (collidableType) {
-    return collidableType;
-  } else {
-    throw new Error(
-      "That is not a valid CollidableType: " + maybeCollidableType
-    );
-  }
-};
+export enum CollidableType {
+  Entity,
+  MapObject,
+}
 
 export class CustomBox extends Box {
   collidableType: CollidableType;
