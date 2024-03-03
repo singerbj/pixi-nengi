@@ -5,6 +5,7 @@ import { SHOT_DISTANCE } from "../common/Constants";
 import { Historian } from "nengi";
 import { collisionService } from "../common/CollisionService";
 import { Entity } from "../common/Entity";
+import { CollidableType } from "../common/Collidable";
 
 export const lagCompensatedHitscanCheck = (
   historian: Historian,
@@ -42,11 +43,10 @@ export const lagCompensatedHitscanCheck = (
         //@ts-ignore
         const nid = body.nid;
         const health = entities.get(nid)?.health;
+        const collidableType = body.collidableType;
         return (
-          nid !== undefined &&
-          !ignoreNids.includes(nid) &&
-          health !== undefined &&
-          health > 0
+          collidableType === CollidableType.MapObject ||
+          (!ignoreNids.includes(nid) && health !== undefined && health > 0)
         );
       }
     );
@@ -59,8 +59,6 @@ export const lagCompensatedHitscanCheck = (
 
       if (hitEntity) {
         hitEntity.takeDamage(3);
-      } else {
-        console.error("Hit entity not found with nid:", nid);
       }
       return new ShotMessage(
         shooterId,
